@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace Centrex\LaravelAddresses\Tests;
 
+use Centrex\LaravelAddresses\LaravelAddressesServiceProvider;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Orchestra\Testbench\TestCase as Orchestra;
-use Centrex\LaravelAddresses\LaravelAddressesServiceProvider;
 
 class TestCase extends Orchestra
 {
