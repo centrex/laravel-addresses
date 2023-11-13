@@ -2,13 +2,13 @@
 
 declare(strict_types=1);
 
-namespace VendorName\Skeleton\Commands;
+namespace Centrex\LaravelAddresses\Commands;
 
 use Illuminate\Console\Command;
 
-class SkeletonCommand extends Command
+class LaravelAddressesCommand extends Command
 {
-    public $signature = 'skeleton';
+    public $signature = 'laravel-addresses';
 
     public $description = 'My command';
 
