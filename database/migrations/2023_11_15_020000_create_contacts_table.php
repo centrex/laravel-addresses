@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -9,13 +11,11 @@ return new class extends Migration
     /**
      * Table names.
      *
-     * @var string  $table  The main table name for this migration.
+     * @var string   The main table name for this migration.
      */
     protected $table;
 
-    /**
-     * Create a new migration instance.
-     */
+    /** Create a new migration instance. */
     public function __construct()
     {
         $this->table = config('laravel_addresses.contacts.table', 'contacts');
@@ -28,8 +28,7 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create($this->table, function(Blueprint $table)
-        {
+        Schema::create($this->table, function (Blueprint $table) {
             $table->increments('id');
             $table->uuid('uuid')->nullable();
 
@@ -55,17 +54,16 @@ return new class extends Migration
             $table->string('website', 100)->nullable();
             $table->string('vat_id')->nullable();
 
-
             $table->integer('address_id')
-                  ->nullable()
-                  ->unsigned()
-                  ->references('id')
-                  ->on(config('laravel_addresses.addresses.table', 'addresses'));
+                ->nullable()
+                ->unsigned()
+                ->references('id')
+                ->on(config('laravel_addresses.addresses.table', 'addresses'));
 
             $table->nullableMorphs('contactable');
 
-            foreach(config('laravel_addresses.contacts.flags', ['public', 'primary']) as $flag) {
-                $table->boolean('is_'. $flag)->default(false)->index();
+            foreach (config('laravel_addresses.contacts.flags', ['public', 'primary']) as $flag) {
+                $table->boolean('is_'.$flag)->default(false)->index();
             }
 
             $table->longText('notes')->nullable();

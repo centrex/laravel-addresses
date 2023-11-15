@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Centrex\Addresses\Helpers;
 
 class NameGenerator
@@ -15,9 +17,8 @@ class NameGenerator
         protected bool $with_titles = false,
         protected bool $with_care_of_prefix = false,
         protected bool $with_name_reversed = false,
-    )
-    {
-        //
+    ) {
+
     }
 
     public function forShippingLabel(): self
@@ -64,25 +65,27 @@ class NameGenerator
 
     public function getCareOfPrefix(): string
     {
-        if (! $this->with_care_of_prefix || ! $this->last_name)
+        if ( ! $this->with_care_of_prefix || ! $this->last_name) {
             return '';
+        }
 
         return trans('addresses::addresses.care-of');
     }
 
     public function getSalutation(): string
     {
-        if (! $this->with_salutation || ! $this->last_name)
+        if ( ! $this->with_salutation || ! $this->last_name) {
             return '';
+        }
 
-        return $this->gender ? trans('addresses::contacts.salutation.'. $this->gender) : '';
+        return $this->gender ? trans('addresses::contacts.salutation.'.$this->gender) : '';
     }
 
     public function getName(): string
     {
         $first_names = trim(implode(' ', array_filter([
             $this->first_name,
-            $this->middle_name
+            $this->middle_name,
         ])));
 
         return $this->with_name_reversed ? trim(implode(', ', array_filter([$this->last_name, $first_names])))
@@ -91,12 +94,13 @@ class NameGenerator
 
     public function getNameWithTitles(): string
     {
-        if (! $this->with_titles)
+        if ( ! $this->with_titles) {
             return $this->getName();
+        }
 
         $name = trim(implode(' ', array_filter([
             $this->title_before,
-            $this->getName()
+            $this->getName(),
         ])));
 
         return trim(implode(', ', array_filter([$name, $this->title_after])));

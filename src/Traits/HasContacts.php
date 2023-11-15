@@ -1,19 +1,21 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Centrex\Addresses\Traits;
 
+use Centrex\Addresses\Exceptions\FailedValidationException;
+use Centrex\Addresses\Models\Contact;
 use Exception;
 use Illuminate\Contracts\Validation\Validator;
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\Collection;
 
-use Centrex\Addresses\Models\Contact;
-use Centrex\Addresses\Exceptions\FailedValidationException;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\MorphMany;
 
 /**
  * Class HasContacts
- * @package Centrex\Addresses\Traits
+ *
  * @property Collection|Contact[]  $contacts
  */
 trait HasContacts
@@ -48,8 +50,9 @@ trait HasContacts
     /** @throws Exception */
     public function deleteContact(Contact $contact): bool
     {
-        if ($this !== $contact->contactable()->first())
+        if ($this !== $contact->contactable()->first()) {
             return false;
+        }
 
         return $contact->delete();
     }
@@ -67,7 +70,7 @@ trait HasContacts
 
         if ($validator->fails()) {
             $errors = $validator->errors()->all();
-            $error  = '[Addresses] '. implode(' ', $errors);
+            $error = '[Addresses] '.implode(' ', $errors);
 
             throw new FailedValidationException($error);
         }
@@ -75,7 +78,7 @@ trait HasContacts
         return $attributes;
     }
 
-    function validateContact(array $attributes): Validator
+    public function validateContact(array $attributes): Validator
     {
         $rules = config('lecturize.contacts.model', Contact::class)::getValidationRules();
 
@@ -84,7 +87,7 @@ trait HasContacts
 
     public function getContact(string $flag, string $direction = 'desc', bool $strict = false): ?Contact
     {
-        if (! $this->hasContacts()) {
+        if ( ! $this->hasContacts()) {
             return null; // short circuit if no contactes exist
         }
 
@@ -93,7 +96,7 @@ trait HasContacts
         if ($flag !== null) {
             $contact = $this->contacts()
                 ->flag($flag, true)
-                ->orderBy('is_' . $flag, $direction)
+                ->orderBy('is_'.$flag, $direction)
                 ->first();
 
             if ($contact !== null) {
@@ -130,9 +133,9 @@ trait HasContacts
         /**
          * should the default fallback logic fail, try to get the first or last contact
          */
-        if (! $contact && $direction === 'DESC') {
+        if ( ! $contact && $direction === 'DESC') {
             return $this->contacts()->first();
-        } elseif (! $contact && $direction === 'ASC') {
+        } elseif ( ! $contact && $direction === 'ASC') {
             return $this->contacts()->last();
         }
 

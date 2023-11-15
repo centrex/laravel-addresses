@@ -1,20 +1,20 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Centrex\Addresses\Traits;
 
+use Centrex\Addresses\Models\Country;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
-use Centrex\Addresses\Models\Country;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /**
  * Class HasCountry
- * @package Centrex\Addresses\Traits;
  *
  * @property int|null  $country_id
  * @property string    $country_code
- *
  * @property-read Country|null  $country
  *
  * @method static Builder|Model byCountry(string $value)
@@ -28,8 +28,9 @@ trait HasCountry
 
     public function getCountryCodeAttribute(): string
     {
-        if ($country = $this->country)
+        if ($country = $this->country) {
             return $country->iso_3166_2;
+        }
 
         return '';
     }
@@ -38,7 +39,7 @@ trait HasCountry
     {
         $country = is_int($country) ? $country : $country->id;
 
-        return $query->whereHas('country', function(Builder $q) use($country) {
+        return $query->whereHas('country', function (Builder $q) use ($country) {
             $q->where('id', $country);
         });
     }

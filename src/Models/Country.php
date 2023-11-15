@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Centrex\Addresses\Models;
 
 use Illuminate\Database\Eloquent\Builder;
@@ -7,10 +9,8 @@ use Webpatser\Countries\Countries;
 
 /**
  * Class Country
- * @package Centrex\Addresses\Models
  *
  * @property-read int  $id
- *
  * @property string|null  $capital
  * @property string|null  $citizenship
  * @property string|null  $country_code
@@ -41,6 +41,6 @@ class Country extends Countries
     public function scopeWhereCountryCode(Builder $query, string $country_code): Builder
     {
         return $query->where('iso_3166_2',   $country_code)
-                     ->orWhere('iso_3166_3', $country_code);
+            ->orWhere('iso_3166_3', $country_code);
     }
 }

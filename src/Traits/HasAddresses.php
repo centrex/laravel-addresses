@@ -1,20 +1,22 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Centrex\Addresses\Traits;
 
+use Centrex\Addresses\Exceptions\FailedValidationException;
+use Centrex\Addresses\Models\Address;
+use Centrex\Addresses\Models\Country;
 use Exception;
 use Illuminate\Contracts\Validation\Validator;
+
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
-use Illuminate\Database\Eloquent\Collection;
-
-use Centrex\Addresses\Models\Address;
-use Centrex\Addresses\Exceptions\FailedValidationException;
-use Centrex\Addresses\Models\Country;
 
 /**
  * Class HasAddresses
- * @package Centrex\Addresses\Traits
+ *
  * @property-read Collection|Address[]  $addresses
  */
 trait HasAddresses
@@ -59,7 +61,7 @@ trait HasAddresses
 
     public function getAddress(string $flag = null, string $direction = 'desc', bool $strict = false): ?Address
     {
-        if (! $this->hasAddresses()) {
+        if ( ! $this->hasAddresses()) {
             return null; // short circuit if no addresses exist
         }
 
@@ -68,7 +70,7 @@ trait HasAddresses
         if ($flag !== null) {
             $address = $this->addresses()
                 ->flag($flag, true)
-                ->orderBy('is_' . $flag, $direction)
+                ->orderBy('is_'.$flag, $direction)
                 ->first();
 
             if ($address !== null) {
@@ -105,9 +107,9 @@ trait HasAddresses
         /**
          * should the default fallback logic fail, try to get the first or last address
          */
-        if (! $address && $direction === 'DESC') {
+        if ( ! $address && $direction === 'DESC') {
             return $this->addresses()->first();
-        } elseif (! $address && $direction === 'ASC') {
+        } elseif ( ! $address && $direction === 'ASC') {
             return $this->addresses()->last();
         }
 
@@ -136,12 +138,14 @@ trait HasAddresses
     public function loadAddressAttributes(array $attributes): array
     {
         // return if no country given
-        if (! isset($attributes['country']))
+        if ( ! isset($attributes['country'])) {
             throw new FailedValidationException('[Addresses] No country code given.');
+        }
 
         // find country
-        if (! ($country = $this->findCountryByCode($attributes['country'])) || ! isset($country->id))
+        if ( ! ($country = $this->findCountryByCode($attributes['country'])) || ! isset($country->id)) {
             throw new FailedValidationException('[Addresses] Country not found, did you seed the countries table?');
+        }
 
         // unset country from attributes array
         unset($attributes['country']);
@@ -152,7 +156,7 @@ trait HasAddresses
 
         if ($validator->fails()) {
             $errors = $validator->errors()->all();
-            $error  = '[Addresses] '. implode(' ', $errors);
+            $error = '[Addresses] '.implode(' ', $errors);
 
             throw new FailedValidationException($error);
         }
@@ -161,7 +165,7 @@ trait HasAddresses
         return $attributes;
     }
 
-    function validateAddress(array $attributes): Validator
+    public function validateAddress(array $attributes): Validator
     {
         $model = config('lecturize.addresses.model', Address::class);
         $rules = (new $model)->getValidationRules();
@@ -169,9 +173,9 @@ trait HasAddresses
         return validator($attributes, $rules);
     }
 
-    function findCountryByCode(string $country_code): ?Country
+    public function findCountryByCode(string $country_code): ?Country
     {
         return Country::whereCountryCode($country_code)
-                      ->first();
+            ->first();
     }
 }

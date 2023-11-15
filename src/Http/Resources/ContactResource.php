@@ -1,10 +1,12 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Centrex\Addresses\Http\Resources;
 
+use Centrex\Addresses\Models\Contact;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
-use Centrex\Addresses\Models\Contact;
 
 /** @mixin Contact */
 class ContactResource extends JsonResource
@@ -14,7 +16,7 @@ class ContactResource extends JsonResource
         return [
             'uuid' => $this->uuid,
 
-            'gender'       => $this->gender,
+            'gender'      => $this->gender,
             'titleBefore' => $this->title_before,
             'titleAfter'  => $this->title_after,
 

@@ -1,24 +1,23 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Centrex\Addresses\Models;
 
+use Centrex\Addresses\Factories\ContactFactory;
+use Centrex\Addresses\Helpers\NameGenerator;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use Centrex\Addresses\Factories\AddressFactory;
-use Centrex\Addresses\Factories\ContactFactory;
-use Centrex\Addresses\Helpers\NameGenerator;
 
 /**
  * Class Contact
- * @package Centrex\Addresses\Models
  *
  * @property-read int          $id
  * @property-read string|null  $uuid
- *
  * @property string|null  $gender
  * @property string|null  $title_before
  * @property string|null  $title_after
@@ -27,7 +26,6 @@ use Centrex\Addresses\Helpers\NameGenerator;
  * @property string|null  $last_name
  * @property string|null  $company
  * @property string|null  $extra
- *
  * @property string|null  $position
  * @property string|null  $phone
  * @property string|null  $mobile
@@ -39,10 +37,8 @@ use Centrex\Addresses\Helpers\NameGenerator;
  * @property string|null  $notes
  * @property array|null   $properties
  * @property int|null     $address_id
- *
  * @property-read string  $full_name
  * @property-read string  $full_name_rev
- *
  * @property-read Model|null    $contactable
  * @property-read Address|null  $address
  *
@@ -53,7 +49,7 @@ class Contact extends Model
     use HasFactory;
     use SoftDeletes;
 
-    /** @inheritdoc */
+    /** {@inheritdoc} */
     protected $fillable = [
         'gender',
         'title_before',
@@ -85,14 +81,14 @@ class Contact extends Model
         'contactable_type',
     ];
 
-    /** @inheritdoc */
+    /** {@inheritdoc} */
     protected $casts = [
         'properties' => 'array',
 
         'deleted_at' => 'datetime',
     ];
 
-    /** @inheritdoc */
+    /** {@inheritdoc} */
     public function __construct(array $attributes = [])
     {
         parent::__construct($attributes);
@@ -101,23 +97,24 @@ class Contact extends Model
         $this->updateFillables();
     }
 
-    /** @inheritdoc */
+    /** {@inheritdoc} */
     protected static function boot()
     {
         parent::boot();
 
         static::creating(function ($model) {
             if ($model->getConnection()
-                      ->getSchemaBuilder()
-                      ->hasColumn($model->getTable(), 'uuid'))
+                ->getSchemaBuilder()
+                ->hasColumn($model->getTable(), 'uuid')) {
                 $model->uuid = \Webpatser\Uuid\Uuid::generate()->string;
+            }
         });
     }
 
     private function updateFillables(): void
     {
         $fillable = $this->fillable;
-        $columns  = preg_filter('/^/', 'is_', config('lecturize.addresses.columns', ['public', 'primary', 'billing', 'shipping']));
+        $columns = preg_filter('/^/', 'is_', config('lecturize.addresses.columns', ['public', 'primary', 'billing', 'shipping']));
 
         $this->fillable(array_merge($fillable, $columns));
     }
@@ -137,7 +134,7 @@ class Contact extends Model
         return config('lecturize.contacts.rules', []);
     }
 
-    public function getFullNameAttribute(?bool $with_salutation = null, ?bool $with_titles = null, ?bool $with_name_reversed = null): string
+    public function getFullNameAttribute(bool $with_salutation = null, bool $with_titles = null, bool $with_name_reversed = null): string
     {
         $generator = (new NameGenerator(
             $this->gender,
@@ -148,19 +145,22 @@ class Contact extends Model
             $this->title_after,
         ));
 
-        if ($with_salutation)
+        if ($with_salutation) {
             $generator->withSalutation();
+        }
 
-        if ($with_titles)
+        if ($with_titles) {
             $generator->withTitles();
+        }
 
-        if ($with_name_reversed)
+        if ($with_name_reversed) {
             $generator->withNameReversed();
+        }
 
         return $generator->toString();
     }
 
-    public function getFullNameRevAttribute(?bool $show_salutation = null, ?bool $with_titles = null): string
+    public function getFullNameRevAttribute(bool $show_salutation = null, bool $with_titles = null): string
     {
         return $this->getFullNameAttribute($show_salutation, $with_titles, true);
     }

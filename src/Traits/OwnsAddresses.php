@@ -1,17 +1,19 @@
 <?php
 
-namespace Centrex\Addresses\Traits;
+declare(strict_types=1);
 
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Database\Eloquent\Collection;
+namespace Centrex\Addresses\Traits;
 
 use Centrex\Addresses\Models\Address;
 use Centrex\Addresses\Models\Contact;
+use Illuminate\Database\Eloquent\Collection;
+
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 /**
  * Class OwnsAddresses
- * @package Centrex\Addresses\Traits
+ *
  * @property-read Collection|Address[]  $addresses
  * @property-read Collection|Contact[]  $contacts
  */
@@ -33,15 +35,15 @@ trait OwnsAddresses
     public function getBillingAddresses(): Collection|array
     {
         return $this->addresses()
-                    ->billing()
-                    ->get();
+            ->billing()
+            ->get();
     }
 
     /** @return Address[]|Collection */
     public function getShippingAddresses(): Collection|array
     {
         return $this->addresses()
-                    ->shipping()
-                    ->get();
+            ->shipping()
+            ->get();
     }
 }

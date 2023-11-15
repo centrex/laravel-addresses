@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 return [
 
     'title' => 'Address|Addresses',
@@ -45,11 +47,11 @@ return [
     ],
 
     'fields' => [
-        'street'     => 'Street & Number',
-        'post_code'  => 'Post Code',
-        'city'       => 'City',
-        'state'      => 'State',
-        'country'    => 'Country',
+        'street'    => 'Street & Number',
+        'post_code' => 'Post Code',
+        'city'      => 'City',
+        'state'     => 'State',
+        'country'   => 'Country',
 
         'notes' => 'Note|Notes',
 

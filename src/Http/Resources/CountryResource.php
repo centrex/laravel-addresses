@@ -1,10 +1,12 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Centrex\Addresses\Http\Resources;
 
+use Centrex\Addresses\Models\Country;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
-use Centrex\Addresses\Models\Country;
 
 /** @mixin Country */
 class CountryResource extends JsonResource

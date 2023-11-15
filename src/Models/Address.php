@@ -1,27 +1,27 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Centrex\Addresses\Models;
 
+use Centrex\Addresses\Factories\AddressFactory;
+use Centrex\Addresses\Helpers\NameGenerator;
+use Centrex\Addresses\Traits\HasCountry;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
-use Centrex\Addresses\Factories\AddressFactory;
-use Centrex\Addresses\Helpers\NameGenerator;
-use Centrex\Addresses\Traits\HasCountry;
-
 /**
  * Class Address
- * @package Centrex\Addresses\Models
  *
  * @property-read int          $id
  * @property-read string|null  $uuid
- *
  * @property string|null  $gender
  * @property string|null  $title_before
  * @property string|null  $title_after
@@ -30,33 +30,27 @@ use Centrex\Addresses\Traits\HasCountry;
  * @property string|null  $last_name
  * @property string|null  $company
  * @property string|null  $extra
- *
  * @property string|null  $street
  * @property string|null  $street_extra
  * @property string|null  $city
  * @property string|null  $state
  * @property string|null  $post_code
- *
  * @property string|null  $vat_id
  * @property string|null  $eori_id
  * @property string|null  $contact_phone
  * @property string|null  $contact_email
  * @property string|null  $billing_email
- *
  * @property string|null  $instructions
  * @property string|null  $notes
  * @property array|null   $properties
  * @property string|null  $lat
  * @property string|null  $lng
- *
- * @property boolean  $is_primary
- * @property boolean  $is_billing
- * @property boolean  $is_shipping
- *
+ * @property bool  $is_primary
+ * @property bool  $is_billing
+ * @property bool  $is_shipping
  * @property-read string  $country_name
  * @property-read string  $route
  * @property-read string  $street_number
- *
  * @property-read Model|null            $addressable
  * @property-read Collection|Contact[]  $contacts
  * @property-read Model|null            $user
@@ -69,7 +63,7 @@ class Address extends Model
     use HasFactory;
     use SoftDeletes;
 
-    /** @inheritdoc */
+    /** {@inheritdoc} */
     protected $fillable = [
         'gender',
         'title_before',
@@ -109,14 +103,14 @@ class Address extends Model
         'user_id',
     ];
 
-    /** @inheritdoc */
+    /** {@inheritdoc} */
     protected $casts = [
         'properties' => 'array',
 
         'deleted_at' => 'datetime',
     ];
 
-    /** @inheritdoc */
+    /** {@inheritdoc} */
     public function __construct(array $attributes = [])
     {
         parent::__construct($attributes);
@@ -125,28 +119,30 @@ class Address extends Model
         $this->updateFillables();
     }
 
-    /** @inheritdoc */
+    /** {@inheritdoc} */
     public static function boot()
     {
         parent::boot();
 
         static::creating(function ($model) {
             if ($model->getConnection()
-                      ->getSchemaBuilder()
-                      ->hasColumn($model->getTable(), 'uuid'))
+                ->getSchemaBuilder()
+                ->hasColumn($model->getTable(), 'uuid')) {
                 $model->uuid = \Webpatser\Uuid\Uuid::generate()->string;
+            }
         });
 
-        static::saving(function($address) {
-            if (config('lecturize.addresses.geocode', false))
+        static::saving(function ($address) {
+            if (config('lecturize.addresses.geocode', false)) {
                 $address->geocode();
+            }
         });
     }
 
     private function updateFillables(): void
     {
         $fillable = $this->fillable;
-        $columns  = preg_filter('/^/', 'is_', config('lecturize.addresses.columns', ['public', 'primary', 'billing', 'shipping']));
+        $columns = preg_filter('/^/', 'is_', config('lecturize.addresses.columns', ['public', 'primary', 'billing', 'shipping']));
 
         $this->fillable(array_merge($fillable, $columns));
     }
@@ -177,16 +173,18 @@ class Address extends Model
             'country_id'   => 'required|integer',
         ]);
 
-        foreach (config('lecturize.addresses.flags', ['public', 'primary', 'billing', 'shipping']) as $flag)
+        foreach (config('lecturize.addresses.flags', ['public', 'primary', 'billing', 'shipping']) as $flag) {
             $rules['is_'.$flag] = 'boolean';
+        }
 
         return $rules;
     }
 
     public function geocode(): self
     {
-        if (! ($query = $this->getQueryString()) || ! ($key = config('services.google.maps.key', '')))
+        if ( ! ($query = $this->getQueryString()) || ! ($key = config('services.google.maps.key', ''))) {
             return $this;
+        }
 
         $url = "https://maps.google.com/maps/api/geocode/json?address=$query&sensor=false&key=$key";
 
@@ -207,11 +205,11 @@ class Address extends Model
     public function getQueryString(): string
     {
         $query = [];
-        $query[] = $this->street       ?: '';
-    //  $query[] = $this->street_extra ?: '';
-        $query[] = $this->city         ?: '';
-        $query[] = $this->state        ?: '';
-        $query[] = $this->post_code    ?: '';
+        $query[] = $this->street ?: '';
+        //  $query[] = $this->street_extra ?: '';
+        $query[] = $this->city ?: '';
+        $query[] = $this->state ?: '';
+        $query[] = $this->post_code ?: '';
         $query[] = $this->country_name ?: '';
 
         $query = trim(implode(',', array_filter($query)));
@@ -223,68 +221,76 @@ class Address extends Model
     {
         $two = [];
         $two[] = $this->post_code ?: '';
-        $two[] = $this->city      ?: '';
-        $two[] = $this->state     ? '('. $this->state .')' : '';
+        $two[] = $this->city ?: '';
+        $two[] = $this->state ? '('.$this->state.')' : '';
 
         $address = $this->getAddresseeLines();
-        $address[] = $this->street       ?: '';
+        $address[] = $this->street ?: '';
         $address[] = $this->street_extra ?: '';
         $address[] = implode(' ', array_filter($two));
         $address[] = $this->country_name ?: '';
 
-        if (count($address = array_filter($address)) > 0)
+        if (count($address = array_filter($address)) > 0) {
             return $address;
+        }
 
         return [];
     }
 
     public function getHtml(): string
     {
-        if ($address = $this->getArray())
-            return '<address>'. implode('<br />', array_filter($address)) .'</address>';
+        if ($address = $this->getArray()) {
+            return '<address>'.implode('<br />', array_filter($address)).'</address>';
+        }
 
         return '';
     }
 
     public function getLine(string $glue = ', '): string
     {
-        if ($address = $this->getArray())
+        if ($address = $this->getArray()) {
             return implode($glue, array_filter($address));
+        }
 
         return '';
     }
 
     public function getCountryNameAttribute(): string
     {
-        if ($this->country)
+        if ($this->country) {
             return $this->country->name;
+        }
 
         return '';
     }
 
     public function getCountryCodeAttribute(?int $digits = 2): string
     {
-        if (! $this->country)
+        if ( ! $this->country) {
             return '';
+        }
 
-        if ($digits === 3)
+        if ($digits === 3) {
             return $this->country->iso_3166_3;
+        }
 
         return $this->country->iso_3166_2;
     }
 
     public function getRouteAttribute(): string
     {
-        if (preg_match('/(\D+)\s?(.+)/i', $this->street, $result))
+        if (preg_match('/(\D+)\s?(.+)/i', $this->street, $result)) {
             return trim($result[1]);
+        }
 
         return '';
     }
 
     public function getStreetNumberAttribute(): string
     {
-        if (preg_match('/(\D+)\s?(.+)/i', $this->street, $result))
+        if (preg_match('/(\D+)\s?(.+)/i', $this->street, $result)) {
             return trim($result[2]);
+        }
 
         return '';
     }

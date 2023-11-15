@@ -1,10 +1,12 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Centrex\Addresses\Http\Resources;
 
+use Centrex\Addresses\Models\Address;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
-use Centrex\Addresses\Models\Address;
 
 /** @mixin Address */
 class AddressResource extends JsonResource
@@ -16,7 +18,7 @@ class AddressResource extends JsonResource
 
             'addressee' => $this->getAddresseeLines(),
 
-            'gender'       => $this->gender,
+            'gender'      => $this->gender,
             'titleBefore' => $this->title_before,
             'titleAfter'  => $this->title_after,
 

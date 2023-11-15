@@ -1,12 +1,14 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Centrex\Addresses\Exceptions;
+
+use Exception;
 
 /**
  * Class FailedValidationException
- * @package Centrex\Addresses\Exceptions
  */
-class FailedValidationException extends \Exception
+class FailedValidationException extends Exception
 {
-    //
 }

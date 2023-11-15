@@ -1,12 +1,14 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Centrex\Addresses\Exceptions;
+
+use Exception;
 
 /**
  * Class AddressNotFoundException
- * @package Centrex\Addresses\Exceptions
  */
-class AddressNotFoundException extends \Exception
+class AddressNotFoundException extends Exception
 {
-    //
 }
