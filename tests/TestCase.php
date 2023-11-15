@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace Centrex\LaravelAddresses\Tests;
+namespace Centrex\Addresses\Tests;
 
-use Centrex\LaravelAddresses\LaravelAddressesServiceProvider;
+use Centrex\Addresses\LaravelAddressesServiceProvider;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Orchestra\Testbench\TestCase as Orchestra;
 
@@ -15,14 +15,14 @@ class TestCase extends Orchestra
         parent::setUp();
 
         Factory::guessFactoryNamesUsing(
-            fn (string $modelName) => 'Centrex\\LaravelAddresses\\Database\\Factories\\'.class_basename($modelName).'Factory'
+            fn (string $modelName) => 'Centrex\\Addresses\\Database\\Factories\\'.class_basename($modelName).'Factory'
         );
     }
 
     protected function getPackageProviders($app)
     {
         return [
-            LaravelAddressesServiceProvider::class,
+            AddressesServiceProvider::class,
         ];
     }
 

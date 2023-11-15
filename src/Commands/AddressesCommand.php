@@ -2,13 +2,13 @@
 
 declare(strict_types=1);
 
-namespace Centrex\LaravelAddresses\Commands;
+namespace Centrex\Addresses\Commands;
 
 use Illuminate\Console\Command;
 
-class LaravelAddressesCommand extends Command
+class AddressesCommand extends Command
 {
-    public $signature = 'laravel-addresses';
+    public $signature = 'addresses';
 
     public $description = 'My command';
 

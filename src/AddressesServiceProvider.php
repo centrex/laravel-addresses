@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace Centrex\LaravelAddresses;
+namespace Centrex\Addresses;
 
 use Illuminate\Support\ServiceProvider;
 
-class LaravelAddressesServiceProvider extends ServiceProvider
+class AddressesServiceProvider extends ServiceProvider
 {
     /** Bootstrap the application services. */
     public function boot()
@@ -16,7 +16,7 @@ class LaravelAddressesServiceProvider extends ServiceProvider
          */
         // $this->loadTranslationsFrom(__DIR__.'/../resources/lang', 'laravel-addresses');
         // $this->loadViewsFrom(__DIR__.'/../resources/views', 'laravel-addresses');
-        // $this->loadMigrationsFrom(__DIR__.'/../database/migrations');
+        $this->loadMigrationsFrom(__DIR__.'/../database/migrations');
         // $this->loadRoutesFrom(__DIR__.'/routes.php');
 
         if ($this->app->runningInConsole()) {
@@ -35,9 +35,9 @@ class LaravelAddressesServiceProvider extends ServiceProvider
             ], 'assets');*/
 
             // Publishing the translation files.
-            /*$this->publishes([
+            $this->publishes([
                 __DIR__.'/../resources/lang' => resource_path('lang/vendor/laravel-addresses'),
-            ], 'lang');*/
+            ], 'lang');
 
             // Registering package commands.
             // $this->commands([]);
@@ -51,8 +51,8 @@ class LaravelAddressesServiceProvider extends ServiceProvider
         $this->mergeConfigFrom(__DIR__.'/../config/config.php', 'laravel-addresses');
 
         // Register the main class to use with the facade
-        $this->app->singleton('laravel-addresses', function () {
-            return new LaravelAddresses;
+        $this->app->singleton('addresses', function () {
+            return new Addresses;
         });
     }
 }

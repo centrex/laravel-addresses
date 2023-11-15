@@ -19,7 +19,9 @@
     "require": {
         "php": "^8.0|^8.1",
         "illuminate/database": "^9.0|^10.0",
-        "illuminate/support": "^9.0|^10.0"
+        "illuminate/support": "^9.0|^10.0",
+        "webpatser/laravel-countries": "^1.5",
+        "webpatser/laravel-uuid": "^3.0|^4.0"
     },
     "require-dev": {
         "laravel/pint": "^1.0",
@@ -36,13 +38,13 @@
     },
     "autoload": {
         "psr-4": {
-            "Centrex\\LaravelAddresses\\": "src/",
-            "Centrex\\LaravelAddresses\\Database\\Factories\\": "database/factories/"
+            "Centrex\\Addresses\\": "src/",
+            "Centrex\\Addresses\\Database\\Factories\\": "database/factories/"
         }
     },
     "autoload-dev": {
         "psr-4": {
-            "Centrex\\LaravelAddresses\\Tests\\": "tests/",
+            "Centrex\\Addresses\\Tests\\": "tests/",
             "Workbench\\App\\": "workbench/app/"
         }
     },
@@ -74,10 +76,10 @@
     "extra": {
         "laravel": {
             "providers": [
-                "Centrex\\LaravelAddresses\\LaravelAddressesServiceProvider"
+                "Centrex\\Addresses\\AddressesServiceProvider"
             ],
             "aliases": {
-                "LaravelAddresses": "Centrex\\LaravelAddresses\\Facades\\LaravelAddresses"
+                "Addresses": "Centrex\\Addresses\\Facades\\Addresses"
             }
         }
     },
