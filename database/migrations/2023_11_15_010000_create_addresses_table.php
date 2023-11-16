@@ -37,9 +37,7 @@ return new class extends Migration
             $table->string('city',      60)->nullable();
             $table->string('state',     60)->nullable();
             $table->string('post_code', 10)->nullable();
-
             $table->integer('country_id')->nullable()->unsigned()->index();
-
             $table->string('notes')->nullable();
 
             $table->float('lat', 10, 6)->nullable();
@@ -47,10 +45,7 @@ return new class extends Migration
             $table->text('properties')->nullable();
 
             $table->nullableMorphs('addressable');
-            $table->integer('user_id')->nullable()->unsigned()->index();
-            $table->foreign('user_id')
-                ->references('id')
-                ->on('users');
+            $table->foreignId('user_id')->index()->constrained()->onDelete('cascade');
 
             foreach (config('laravel_addresses.addresses.flags', ['public', 'primary', 'billing', 'shipping']) as $flag) {
                 $table->boolean('is_'.$flag)->default(false)->index();
