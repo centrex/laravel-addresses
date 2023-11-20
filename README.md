@@ -18,14 +18,14 @@ composer require centrex/laravel-addresses
 You can publish and run the migrations with:
 
 ```bash
-php artisan vendor:publish --tag="laravel-addresses-migrations"
+php artisan vendor:publish --tag="addresses-migrations"
 php artisan migrate
 ```
 
 You can publish the config file with:
 
 ```bash
-php artisan vendor:publish --tag="laravel-addresses-config"
+php artisan vendor:publish --tag="addresses-config"
 ```
 
 This is the contents of the published config file:
@@ -38,7 +38,7 @@ return [
 Optionally, you can publish the views using
 
 ```bash
-php artisan vendor:publish --tag="laravel-addresses-views"
+php artisan vendor:publish --tag="addresses-views"
 ```
 
 ## Usage
