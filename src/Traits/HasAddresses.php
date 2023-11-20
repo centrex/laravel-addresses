@@ -24,7 +24,7 @@ trait HasAddresses
     public function addresses(): MorphMany
     {
         /** @var Model $this */
-        return $this->morphMany(config('lecturize.addresses.model', Address::class), 'addressable');
+        return $this->morphMany(config('laravel-addresses.addresses.model', Address::class), 'addressable');
     }
 
     public function hasAddresses(): bool
