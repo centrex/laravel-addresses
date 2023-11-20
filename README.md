@@ -15,7 +15,7 @@ You can install the package via composer:
 composer require centrex/laravel-addresses
 ```
 
-You can publish and run the migrations with:
+You can run the migrations with:
 
 ```bash
 php artisan migrate
