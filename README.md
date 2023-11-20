@@ -43,9 +43,86 @@ php artisan vendor:publish --tag="addresses-views"
 
 ## Usage
 
+First, add our `HasAddresses` trait to your model.
+        
 ```php
-$laravelAddresses = new Centrex\LaravelAddresses();
-echo $laravelAddresses->echoPhrase('Hello, Centrex!');
+<?php namespace App\Models;
+
+use Lecturize\Addresses\Traits\HasAddresses;
+use Illuminate\Database\Eloquent\Model;
+
+class Post extends Model
+{
+    use HasAddresses;
+
+    // ...
+}
+?>
+```
+
+##### Add an Address to a Model
+```php
+$post = Post::find(1);
+$post->addAddress([
+    'street'     => '123 Example Drive',
+    'city'       => 'Vienna',
+    'post_code'  => '1110',
+    'country'    => 'AT', // ISO-3166-2 or ISO-3166-3 country code
+    'is_primary' => true, // optional flag
+]);
+```
+
+Alternativly you could do...
+
+```php
+$address = [
+    'street'     => '123 Example Drive',
+    'city'       => 'Vienna',
+    'post_code'  => '1110',
+    'country'    => 'AT', // ISO-3166-2 or ISO-3166-3 country code
+    'is_primary' => true, // optional flag
+];
+$post->addAddress($address);
+```
+
+Available attributes are `street`, `street_extra`, `city`, `post_code`, `state`, `country`, `state`, `notes` (for internal use). You can also use custom flags like `is_primary`, `is_billing` & `is_shipping`. Optionally you could also pass `lng` and `lat`, in case you deactivated the included geocoding functionality and want to add them yourself.
+
+##### Check if Model has Addresses
+```php
+if ($post->hasAddresses()) {
+    // Do something
+}
+```
+
+##### Get all Addresses for a Model
+```php
+$addresses = $post->addresses()->get();
+```
+
+##### Get primary/billing/shipping Addresses
+```php
+$address = $post->getPrimaryAddress();
+$address = $post->getBillingAddress();
+$address = $post->getShippingAddress();
+```
+
+##### Update an Address for a Model
+```php
+$address = $post->addresses()->first(); // fetch the address
+
+$post->updateAddress($address, $new_attributes);
+```
+
+##### Delete an Address from a Model
+```php
+$address = $post->addresses()->first(); // fetch the address
+
+$post->deleteAddress($address); // delete by passing it as argument
+```
+
+##### Delete all Addresses from a Model
+```php
+$post->flushAddresses();
 ```
 
 ## Testing
@@ -70,6 +147,7 @@ Please review [our security policy](../../security/policy) on how to report secu
 
 - [centrex](https://github.com/centrex)
 - [All Contributors](../../contributors)
+- [lecturize/laravel-addresses](https://github.com/Lecturize/Laravel-Addresses)
 
 ## License
 
