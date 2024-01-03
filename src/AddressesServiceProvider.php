@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types=1);
+declare(strict_types = 1);
 
 namespace Centrex\Addresses;
 
@@ -16,12 +16,12 @@ class AddressesServiceProvider extends ServiceProvider
          */
         // $this->loadTranslationsFrom(__DIR__.'/../resources/lang', 'addresses');
         // $this->loadViewsFrom(__DIR__.'/../resources/views', 'addresses');
-        $this->loadMigrationsFrom(__DIR__.'/../database/migrations');
+        $this->loadMigrationsFrom(__DIR__ . '/../database/migrations');
         // $this->loadRoutesFrom(__DIR__.'/routes.php');
 
         if ($this->app->runningInConsole()) {
             $this->publishes([
-                __DIR__.'/../config/config.php' => config_path('laravel-addresses.php'),
+                __DIR__ . '/../config/config.php' => config_path('laravel-addresses.php'),
             ], 'addresses-config');
 
             // Publishing the views.
@@ -36,7 +36,7 @@ class AddressesServiceProvider extends ServiceProvider
 
             // Publishing the translation files.
             $this->publishes([
-                __DIR__.'/../resources/lang' => resource_path('lang/vendor/addresses'),
+                __DIR__ . '/../resources/lang' => resource_path('lang/vendor/addresses'),
             ], 'addresses-lang');
 
             // Registering package commands.
@@ -48,11 +48,11 @@ class AddressesServiceProvider extends ServiceProvider
     public function register()
     {
         // Automatically apply the package configuration
-        $this->mergeConfigFrom(__DIR__.'/../config/config.php', 'addresses');
+        $this->mergeConfigFrom(__DIR__ . '/../config/config.php', 'addresses');
 
         // Register the main class to use with the facade
         $this->app->singleton('addresses', function () {
-            return new Addresses;
+            return new Addresses();
         });
     }
 }

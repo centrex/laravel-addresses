@@ -1,12 +1,12 @@
 <?php
 
-declare(strict_types=1);
+declare(strict_types = 1);
 
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-return new class extends Migration
+return new class() extends Migration
 {
     /**
      * Table names.
@@ -37,17 +37,17 @@ return new class extends Migration
 
             $table->string('title_before', 20)->nullable();
             $table->string('title_after', 20)->nullable();
-            $table->string('first_name',  20)->nullable();
+            $table->string('first_name', 20)->nullable();
             $table->string('middle_name', 20)->nullable();
-            $table->string('last_name',   20)->nullable();
+            $table->string('last_name', 20)->nullable();
 
-            $table->string('company',  60)->nullable();
+            $table->string('company', 60)->nullable();
             $table->string('extra')->nullable();
             $table->string('position', 60)->nullable();
 
-            $table->string('phone',    32)->nullable();
-            $table->string('mobile',   32)->nullable();
-            $table->string('fax',      32)->nullable();
+            $table->string('phone', 32)->nullable();
+            $table->string('mobile', 32)->nullable();
+            $table->string('fax', 32)->nullable();
             $table->string('contact_email')->nullable();
             $table->string('billing_email')->nullable();
             $table->string('instructions')->nullable();
@@ -63,7 +63,7 @@ return new class extends Migration
             $table->nullableMorphs('contactable');
 
             foreach (config('laravel_addresses.contacts.flags', ['public', 'primary']) as $flag) {
-                $table->boolean('is_'.$flag)->default(false)->index();
+                $table->boolean('is_' . $flag)->default(false)->index();
             }
 
             $table->longText('notes')->nullable();

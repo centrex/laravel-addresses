@@ -1,15 +1,12 @@
 <?php
 
-declare(strict_types=1);
+declare(strict_types = 1);
 
 namespace Centrex\Addresses\Traits;
 
-use Centrex\Addresses\Models\Address;
-use Centrex\Addresses\Models\Contact;
-use Illuminate\Database\Eloquent\Collection;
-
-use Illuminate\Database\Eloquent\Model;
+use Centrex\Addresses\Models\{Address, Contact};
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\{Collection, Model};
 
 /**
  * Class OwnsAddresses

@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types=1);
+declare(strict_types = 1);
 
 namespace Centrex\Addresses\Helpers;
 
@@ -64,7 +64,7 @@ class NameGenerator
 
     public function getCareOfPrefix(): string
     {
-        if ( ! $this->with_care_of_prefix || ! $this->last_name) {
+        if (!$this->with_care_of_prefix || !$this->last_name) {
             return '';
         }
 
@@ -73,11 +73,11 @@ class NameGenerator
 
     public function getSalutation(): string
     {
-        if ( ! $this->with_salutation || ! $this->last_name) {
+        if (!$this->with_salutation || !$this->last_name) {
             return '';
         }
 
-        return $this->gender ? trans('addresses::contacts.salutation.'.$this->gender) : '';
+        return $this->gender ? trans('addresses::contacts.salutation.' . $this->gender) : '';
     }
 
     public function getName(): string
@@ -93,7 +93,7 @@ class NameGenerator
 
     public function getNameWithTitles(): string
     {
-        if ( ! $this->with_titles) {
+        if (!$this->with_titles) {
             return $this->getName();
         }
 

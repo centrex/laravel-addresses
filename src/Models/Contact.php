@@ -1,17 +1,14 @@
 <?php
 
-declare(strict_types=1);
+declare(strict_types = 1);
 
 namespace Centrex\Addresses\Models;
 
 use Centrex\Addresses\Factories\ContactFactory;
 use Centrex\Addresses\Helpers\NameGenerator;
-use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\MorphTo;
-use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Database\Eloquent\Relations\{BelongsTo, MorphTo};
+use Illuminate\Database\Eloquent\{Builder, Model, SoftDeletes};
 
 /**
  * Class Contact
@@ -114,7 +111,7 @@ class Contact extends Model
     private function updateFillables(): void
     {
         $fillable = $this->fillable;
-        $columns = preg_filter('/^/', 'is_', config('lecturize.addresses.columns', ['public', 'primary', 'billing', 'shipping']));
+        $columns  = preg_filter('/^/', 'is_', config('lecturize.addresses.columns', ['public', 'primary', 'billing', 'shipping']));
 
         $this->fillable(array_merge($fillable, $columns));
     }
@@ -134,7 +131,7 @@ class Contact extends Model
         return config('lecturize.contacts.rules', []);
     }
 
-    public function getFullNameAttribute(bool $with_salutation = null, bool $with_titles = null, bool $with_name_reversed = null): string
+    public function getFullNameAttribute(?bool $with_salutation = null, ?bool $with_titles = null, ?bool $with_name_reversed = null): string
     {
         $generator = (new NameGenerator(
             $this->gender,
@@ -160,14 +157,14 @@ class Contact extends Model
         return $generator->toString();
     }
 
-    public function getFullNameRevAttribute(bool $show_salutation = null, bool $with_titles = null): string
+    public function getFullNameRevAttribute(?bool $show_salutation = null, ?bool $with_titles = null): string
     {
         return $this->getFullNameAttribute($show_salutation, $with_titles, true);
     }
 
     public function scopeFlag(Builder $query, string $flag): Builder
     {
-        return $query->where('is_'.$flag, true);
+        return $query->where('is_' . $flag, true);
     }
 
     protected static function newFactory(): ContactFactory

@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types=1);
+declare(strict_types = 1);
 
 namespace Centrex\Addresses\Traits;
 
@@ -8,10 +8,8 @@ use Centrex\Addresses\Exceptions\FailedValidationException;
 use Centrex\Addresses\Models\Contact;
 use Exception;
 use Illuminate\Contracts\Validation\Validator;
-use Illuminate\Database\Eloquent\Collection;
-
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
+use Illuminate\Database\Eloquent\{Collection, Model};
 
 /**
  * Class HasContacts
@@ -70,7 +68,7 @@ trait HasContacts
 
         if ($validator->fails()) {
             $errors = $validator->errors()->all();
-            $error = '[Addresses] '.implode(' ', $errors);
+            $error  = '[Addresses] ' . implode(' ', $errors);
 
             throw new FailedValidationException($error);
         }
@@ -87,7 +85,7 @@ trait HasContacts
 
     public function getContact(string $flag, string $direction = 'desc', bool $strict = false): ?Contact
     {
-        if ( ! $this->hasContacts()) {
+        if (!$this->hasContacts()) {
             return null; // short circuit if no contactes exist
         }
 
@@ -96,7 +94,7 @@ trait HasContacts
         if ($flag !== null) {
             $contact = $this->contacts()
                 ->flag($flag, true)
-                ->orderBy('is_'.$flag, $direction)
+                ->orderBy('is_' . $flag, $direction)
                 ->first();
 
             if ($contact !== null) {
@@ -119,7 +117,7 @@ trait HasContacts
              * in this case, the flag 'primary' would be used
              */
             $current_flag_index = array_search($flag, $fallback_order);
-            $try_flag = $fallback_order[$current_flag_index - 1] ?? null;
+            $try_flag           = $fallback_order[$current_flag_index - 1] ?? null;
 
             if ($try_flag !== null) {
                 $contact = $this->getContact($try_flag, $direction);
@@ -133,9 +131,9 @@ trait HasContacts
         /**
          * should the default fallback logic fail, try to get the first or last contact
          */
-        if ( ! $contact && $direction === 'DESC') {
+        if (!$contact && $direction === 'DESC') {
             return $this->contacts()->first();
-        } elseif ( ! $contact && $direction === 'ASC') {
+        } elseif (!$contact && $direction === 'ASC') {
             return $this->contacts()->last();
         }
 

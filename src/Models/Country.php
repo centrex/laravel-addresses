@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types=1);
+declare(strict_types = 1);
 
 namespace Centrex\Addresses\Models;
 
@@ -40,7 +40,7 @@ class Country extends Countries
 {
     public function scopeWhereCountryCode(Builder $query, string $country_code): Builder
     {
-        return $query->where('iso_3166_2',   $country_code)
+        return $query->where('iso_3166_2', $country_code)
             ->orWhere('iso_3166_3', $country_code);
     }
 }

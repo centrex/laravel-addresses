@@ -1,21 +1,15 @@
 <?php
 
-declare(strict_types=1);
+declare(strict_types = 1);
 
 namespace Centrex\Addresses\Models;
 
 use Centrex\Addresses\Factories\AddressFactory;
 use Centrex\Addresses\Helpers\NameGenerator;
 use Centrex\Addresses\Traits\HasCountry;
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
-
-use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Database\Eloquent\Relations\MorphTo;
-use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Database\Eloquent\Relations\{BelongsTo, HasMany, MorphTo};
+use Illuminate\Database\Eloquent\{Builder, Collection, Model, SoftDeletes};
 
 /**
  * Class Address
@@ -142,7 +136,7 @@ class Address extends Model
     private function updateFillables(): void
     {
         $fillable = $this->fillable;
-        $columns = preg_filter('/^/', 'is_', config('lecturize.addresses.columns', ['public', 'primary', 'billing', 'shipping']));
+        $columns  = preg_filter('/^/', 'is_', config('lecturize.addresses.columns', ['public', 'primary', 'billing', 'shipping']));
 
         $this->fillable(array_merge($fillable, $columns));
     }
@@ -174,7 +168,7 @@ class Address extends Model
         ]);
 
         foreach (config('lecturize.addresses.flags', ['public', 'primary', 'billing', 'shipping']) as $flag) {
-            $rules['is_'.$flag] = 'boolean';
+            $rules['is_' . $flag] = 'boolean';
         }
 
         return $rules;
@@ -182,11 +176,11 @@ class Address extends Model
 
     public function geocode(): self
     {
-        if ( ! ($query = $this->getQueryString()) || ! ($key = config('services.google.maps.key', ''))) {
+        if (!($query = $this->getQueryString()) || !($key = config('services.google.maps.key', ''))) {
             return $this;
         }
 
-        $url = "https://maps.google.com/maps/api/geocode/json?address=$query&sensor=false&key=$key";
+        $url = "https://maps.google.com/maps/api/geocode/json?address={$query}&sensor=false&key={$key}";
 
         if ($geocode = file_get_contents($url)) {
             $output = json_decode($geocode);
@@ -204,7 +198,7 @@ class Address extends Model
 
     public function getQueryString(): string
     {
-        $query = [];
+        $query   = [];
         $query[] = $this->street ?: '';
         //  $query[] = $this->street_extra ?: '';
         $query[] = $this->city ?: '';
@@ -219,12 +213,12 @@ class Address extends Model
 
     public function getArray(): array
     {
-        $two = [];
+        $two   = [];
         $two[] = $this->post_code ?: '';
         $two[] = $this->city ?: '';
-        $two[] = $this->state ? '('.$this->state.')' : '';
+        $two[] = $this->state ? '(' . $this->state . ')' : '';
 
-        $address = $this->getAddresseeLines();
+        $address   = $this->getAddresseeLines();
         $address[] = $this->street ?: '';
         $address[] = $this->street_extra ?: '';
         $address[] = implode(' ', array_filter($two));
@@ -240,7 +234,7 @@ class Address extends Model
     public function getHtml(): string
     {
         if ($address = $this->getArray()) {
-            return '<address>'.implode('<br />', array_filter($address)).'</address>';
+            return '<address>' . implode('<br />', array_filter($address)) . '</address>';
         }
 
         return '';
@@ -266,7 +260,7 @@ class Address extends Model
 
     public function getCountryCodeAttribute(?int $digits = 2): string
     {
-        if ( ! $this->country) {
+        if (!$this->country) {
             return '';
         }
 
@@ -315,7 +309,7 @@ class Address extends Model
 
     public function scopeFlag(Builder $query, string $flag): Builder
     {
-        return $query->where('is_'.$flag, true);
+        return $query->where('is_' . $flag, true);
     }
 
     /** @deprecated use scopeFlag('primary') instead */
