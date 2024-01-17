@@ -11,22 +11,22 @@ use Webpatser\Countries\Countries;
  * Class Country
  *
  * @property-read int  $id
- * @property string|null  $capital
- * @property string|null  $citizenship
- * @property string|null  $country_code
- * @property string|null  $currency
- * @property string|null  $currency_code
- * @property string|null  $currency_sub_unit
- * @property string|null  $full_name
- * @property string|null  $name
- * @property string|null  $iso_3166_2
- * @property string|null  $iso_3166_3
- * @property string|null  $region-code
- * @property string|null  $sub-region-code
- * @property string|null  $eea
- * @property string|null  $calling_code
- * @property string|null  $currency_symbol
- * @property string|null  $flag
+ * @property string|null $capital
+ * @property string|null $citizenship
+ * @property string|null $country_code
+ * @property string|null $currency
+ * @property string|null $currency_code
+ * @property string|null $currency_sub_unit
+ * @property string|null $full_name
+ * @property string|null $name
+ * @property string|null $iso_3166_2
+ * @property string|null $iso_3166_3
+ * @property string|null $region-code
+ * @property string|null $sub-region-code
+ * @property string|null $eea
+ * @property string|null $calling_code
+ * @property string|null $currency_symbol
+ * @property string|null $flag
  *
  * @method static Builder|Country whereId(int $value)
  * @method static Builder|Country whereCapital(string $value)

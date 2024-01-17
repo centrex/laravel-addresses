@@ -16,32 +16,32 @@ use Illuminate\Database\Eloquent\{Builder, Collection, Model, SoftDeletes};
  *
  * @property-read int          $id
  * @property-read string|null  $uuid
- * @property string|null  $gender
- * @property string|null  $title_before
- * @property string|null  $title_after
- * @property string|null  $first_name
- * @property string|null  $middle_name
- * @property string|null  $last_name
- * @property string|null  $company
- * @property string|null  $extra
- * @property string|null  $street
- * @property string|null  $street_extra
- * @property string|null  $city
- * @property string|null  $state
- * @property string|null  $post_code
- * @property string|null  $vat_id
- * @property string|null  $eori_id
- * @property string|null  $contact_phone
- * @property string|null  $contact_email
- * @property string|null  $billing_email
- * @property string|null  $instructions
- * @property string|null  $notes
- * @property array|null   $properties
- * @property string|null  $lat
- * @property string|null  $lng
- * @property bool  $is_primary
- * @property bool  $is_billing
- * @property bool  $is_shipping
+ * @property string|null $gender
+ * @property string|null $title_before
+ * @property string|null $title_after
+ * @property string|null $first_name
+ * @property string|null $middle_name
+ * @property string|null $last_name
+ * @property string|null $company
+ * @property string|null $extra
+ * @property string|null $street
+ * @property string|null $street_extra
+ * @property string|null $city
+ * @property string|null $state
+ * @property string|null $post_code
+ * @property string|null $vat_id
+ * @property string|null $eori_id
+ * @property string|null $contact_phone
+ * @property string|null $contact_email
+ * @property string|null $billing_email
+ * @property string|null $instructions
+ * @property string|null $notes
+ * @property array|null $properties
+ * @property string|null $lat
+ * @property string|null $lng
+ * @property bool $is_primary
+ * @property bool $is_billing
+ * @property bool $is_shipping
  * @property-read string  $country_name
  * @property-read string  $route
  * @property-read string  $street_number

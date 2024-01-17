@@ -11,8 +11,8 @@ use Illuminate\Database\Eloquent\{Builder, Model};
 /**
  * Class HasCountry
  *
- * @property int|null  $country_id
- * @property string    $country_code
+ * @property int|null $country_id
+ * @property string $country_code
  * @property-read Country|null  $country
  *
  * @method static Builder|Model byCountry(string $value)

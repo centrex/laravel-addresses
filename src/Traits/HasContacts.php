@@ -14,7 +14,7 @@ use Illuminate\Database\Eloquent\{Collection, Model};
 /**
  * Class HasContacts
  *
- * @property Collection|Contact[]  $contacts
+ * @property Collection|Contact[] $contacts
  */
 trait HasContacts
 {

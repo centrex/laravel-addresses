@@ -15,25 +15,25 @@ use Illuminate\Database\Eloquent\{Builder, Model, SoftDeletes};
  *
  * @property-read int          $id
  * @property-read string|null  $uuid
- * @property string|null  $gender
- * @property string|null  $title_before
- * @property string|null  $title_after
- * @property string|null  $first_name
- * @property string|null  $middle_name
- * @property string|null  $last_name
- * @property string|null  $company
- * @property string|null  $extra
- * @property string|null  $position
- * @property string|null  $phone
- * @property string|null  $mobile
- * @property string|null  $fax
- * @property string|null  $email
- * @property string|null  $email_invoice
- * @property string|null  $website
- * @property string|null  $vat_id
- * @property string|null  $notes
- * @property array|null   $properties
- * @property int|null     $address_id
+ * @property string|null $gender
+ * @property string|null $title_before
+ * @property string|null $title_after
+ * @property string|null $first_name
+ * @property string|null $middle_name
+ * @property string|null $last_name
+ * @property string|null $company
+ * @property string|null $extra
+ * @property string|null $position
+ * @property string|null $phone
+ * @property string|null $mobile
+ * @property string|null $fax
+ * @property string|null $email
+ * @property string|null $email_invoice
+ * @property string|null $website
+ * @property string|null $vat_id
+ * @property string|null $notes
+ * @property array|null $properties
+ * @property int|null $address_id
  * @property-read string  $full_name
  * @property-read string  $full_name_rev
  * @property-read Model|null    $contactable

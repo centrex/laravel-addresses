@@ -11,7 +11,7 @@ return new class() extends Migration
     /**
      * Table names.
      *
-     * @var string   The main table name for this migration.
+     * @var string The main table name for this migration.
      */
     protected $table;
 
