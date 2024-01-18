@@ -91,7 +91,7 @@ trait HasAddresses
              * in this case, the flag 'primary' would be used
              */
             $current_flag_index = array_search($flag, $fallback_order);
-            $try_flag           = $fallback_order[$current_flag_index - 1] ?? null;
+            $try_flag = $fallback_order[$current_flag_index - 1] ?? null;
 
             if ($try_flag !== null) {
                 $address = $this->getAddress($try_flag, $direction);
@@ -154,7 +154,7 @@ trait HasAddresses
 
         if ($validator->fails()) {
             $errors = $validator->errors()->all();
-            $error  = '[Addresses] ' . implode(' ', $errors);
+            $error = '[Addresses] ' . implode(' ', $errors);
 
             throw new FailedValidationException($error);
         }

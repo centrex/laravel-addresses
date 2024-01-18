@@ -136,7 +136,7 @@ class Address extends Model
     private function updateFillables(): void
     {
         $fillable = $this->fillable;
-        $columns  = preg_filter('/^/', 'is_', config('lecturize.addresses.columns', ['public', 'primary', 'billing', 'shipping']));
+        $columns = preg_filter('/^/', 'is_', config('lecturize.addresses.columns', ['public', 'primary', 'billing', 'shipping']));
 
         $this->fillable(array_merge($fillable, $columns));
     }
@@ -198,7 +198,7 @@ class Address extends Model
 
     public function getQueryString(): string
     {
-        $query   = [];
+        $query = [];
         $query[] = $this->street ?: '';
         //  $query[] = $this->street_extra ?: '';
         $query[] = $this->city ?: '';
@@ -213,12 +213,12 @@ class Address extends Model
 
     public function getArray(): array
     {
-        $two   = [];
+        $two = [];
         $two[] = $this->post_code ?: '';
         $two[] = $this->city ?: '';
         $two[] = $this->state ? '(' . $this->state . ')' : '';
 
-        $address   = $this->getAddresseeLines();
+        $address = $this->getAddresseeLines();
         $address[] = $this->street ?: '';
         $address[] = $this->street_extra ?: '';
         $address[] = implode(' ', array_filter($two));
