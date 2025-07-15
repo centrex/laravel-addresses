@@ -45,7 +45,7 @@ trait HasAddresses
         if ($address->addressable_id !== $this->getKey() || $address->addressable_type !== $this->getMorphClass()) {
             throw new Exception('Address does not belong to this model');
         }
-        
+
         $attributes = $this->validateOnlyGivenAttributes($attributes);
         return $address->update($attributes);
     }
@@ -146,7 +146,7 @@ trait HasAddresses
         $filteredRules = array_intersect_key($rules, $attributes);
         
         // Validate only the provided attributes
-        $validator = Validator::make($attributes, $filteredRules);
+        $validator = validator($attributes, $filteredRules);
         
         if ($validator->fails()) {
             throw new FailedValidationException(
