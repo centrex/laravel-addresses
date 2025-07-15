@@ -1,55 +1,63 @@
 <?php
 
-declare(strict_types = 1);
+declare(strict_types=1);
 
 namespace Centrex\Addresses\Traits;
 
 use Centrex\Addresses\Exceptions\FailedValidationException;
 use Centrex\Addresses\Models\{Address, Country};
 use Exception;
-
 use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\{Collection, Model};
 
 /**
- * Class HasAddresses
- *
- * @property-read Collection|Address[]  $addresses
+ * @property-read Collection|Address[] $addresses
  */
 trait HasAddresses
 {
     public function addresses(): MorphMany
     {
         /** @var Model $this */
-        return $this->morphMany(config('laravel-addresses.addresses.model', Address::class), 'addressable');
+        return $this->morphMany(
+            config('laravel-addresses.addresses.model', Address::class), 
+            'addressable'
+        );
     }
 
     public function hasAddresses(): bool
     {
-        return $this->addresses->isNotEmpty();
+        return $this->relationLoaded('addresses') 
+            ? $this->addresses->isNotEmpty()
+            : $this->addresses()->exists();
     }
 
     /** @throws Exception */
     public function addAddress(array $attributes): Address|Model
     {
         $attributes = $this->loadAddressAttributes($attributes);
-
         return $this->addresses()->updateOrCreate($attributes);
     }
 
     /** @throws Exception */
     public function updateAddress(Address $address, array $attributes): bool
     {
-        $attributes = $this->loadAddressAttributes($attributes);
-
-        return $address->fill($attributes)->save();
+        if ($address->addressable_id !== $this->getKey() || $address->addressable_type !== $this->getMorphClass()) {
+            throw new Exception('Address does not belong to this model');
+        }
+        
+        $attributes = $this->validateOnlyGivenAttributes($attributes);
+        return $address->update($attributes);
     }
 
     /** @throws Exception */
     public function deleteAddress(Address $address): bool
     {
-        return $this->addresses()->where('id', $address->id)->delete();
+        if ($address->addressable_id !== $this->getKey() || $address->addressable_type !== $this->getMorphClass()) {
+            throw new Exception('Address does not belong to this model');
+        }
+
+        return $address->delete();
     }
 
     public function flushAddresses(): bool
@@ -60,120 +68,135 @@ trait HasAddresses
     public function getAddress(?string $flag = null, string $direction = 'desc', bool $strict = false): ?Address
     {
         if (!$this->hasAddresses()) {
-            return null; // short circuit if no addresses exist
+            return null;
         }
 
         $direction = strtoupper($direction) === 'ASC' ? 'ASC' : 'DESC';
 
         if ($flag !== null) {
-            $address = $this->addresses()
-                ->flag($flag, true)
-                ->orderBy('is_' . $flag, $direction)
-                ->first();
-
-            if ($address !== null) {
+            $address = $this->getAddressByFlag($flag, $direction);
+            
+            if ($address || $strict) {
                 return $address;
             }
 
-            if ($strict) {
-                return null;
-            }
-
-            /**
-             * use the array order of config lecturize.addresses.flags to build up
-             * a fallback solution for when no address with the given flag exists
-             */
-            $fallback_order = config('lecturize.addresses.flags', []);
-
-            /**
-             * fallback order is an array of flags like: ['public', 'primary', 'billing', 'shipping']
-             * when calling getAddress('billing') and no address with the billing flag exists, the next earliest flag is used
-             * in this case, the flag 'primary' would be used
-             */
-            $current_flag_index = array_search($flag, $fallback_order);
-            $try_flag = $fallback_order[$current_flag_index - 1] ?? null;
-
-            if ($try_flag !== null) {
-                $address = $this->getAddress($try_flag, $direction);
-
-                if ($address !== null) {
-                    return $address;
-                }
-            }
+            return $this->getFallbackAddress($flag, $direction);
         }
 
-        /**
-         * should the default fallback logic fail, try to get the first or last address
-         */
-        if (!$address && $direction === 'DESC') {
-            return $this->addresses()->first();
-        } elseif (!$address && $direction === 'ASC') {
-            return $this->addresses()->last();
+        return $this->getDefaultAddress($direction);
+    }
+
+    protected function getAddressByFlag(string $flag, string $direction): ?Address
+    {
+        return $this->addresses()
+            ->flag($flag, true)
+            ->orderBy('is_' . $flag, $direction)
+            ->first();
+    }
+
+    protected function getFallbackAddress(string $originalFlag, string $direction): ?Address
+    {
+        $fallbackOrder = config('laravel-addresses.addresses.flags', []);
+        $flagIndex = array_search($originalFlag, $fallbackOrder);
+        
+        if ($flagIndex === false || $flagIndex === 0) {
+            return null;
         }
 
-        return null;
+        $tryFlag = $fallbackOrder[$flagIndex - 1] ?? null;
+        return $tryFlag ? $this->getAddress($tryFlag, $direction) : null;
     }
 
-    /** @deprecated use getAddress('primary', $direction) instead */
-    public function getPrimaryAddress(string $direction = 'desc'): ?Address
+    protected function getDefaultAddress(string $direction): ?Address
     {
-        return $this->getAddress('primary', $direction, true);
-    }
-
-    /** @deprecated use getAddress('billing', $direction) instead */
-    public function getBillingAddress(string $direction = 'desc'): ?Address
-    {
-        return $this->getAddress('billing', $direction, true);
-    }
-
-    /** @deprecated use getAddress('shipping', $direction) instead */
-    public function getShippingAddress(string $direction = 'desc'): ?Address
-    {
-        return $this->getAddress('shipping', $direction, true);
+        return $direction === 'DESC' 
+            ? $this->addresses()->first() 
+            : $this->addresses()->last();
     }
 
     /** @throws FailedValidationException */
     public function loadAddressAttributes(array $attributes): array
     {
-        // return if no country given
-        if (!isset($attributes['country'])) {
+        $countryCode = $attributes['country'] ?? null;
+        
+        if (empty($countryCode)) {
             throw new FailedValidationException('[Addresses] No country code given.');
         }
 
-        // find country
-        if (!($country = $this->findCountryByCode($attributes['country'])) || !isset($country->id)) {
+        $country = $this->findCountryByCode($countryCode);
+        
+        if (!$country?->id) {
             throw new FailedValidationException('[Addresses] Country not found, did you seed the countries table?');
         }
 
-        // unset country from attributes array
-        unset($attributes['country']);
         $attributes['country_id'] = $country->id;
+        unset($attributes['country']);
 
-        // run validation
-        $validator = $this->validateAddress($attributes);
+        $this->validateAddressAttributes($attributes);
 
-        if ($validator->fails()) {
-            $errors = $validator->errors()->all();
-            $error = '[Addresses] ' . implode(' ', $errors);
-
-            throw new FailedValidationException($error);
-        }
-
-        // return attributes array with country_id key/value pair
         return $attributes;
+    }
+
+    public function validateOnlyGivenAttributes(array $attributes): array
+    {
+        $model = config('laravel-addresses.addresses.model', Address::class);
+        $rules = (new $model())->getValidationRules();
+        
+        // Filter rules to only include keys present in the attributes
+        $filteredRules = array_intersect_key($rules, $attributes);
+        
+        // Validate only the provided attributes
+        $validator = Validator::make($attributes, $filteredRules);
+        
+        if ($validator->fails()) {
+            throw new FailedValidationException(
+                '[Validation] ' . $validator->errors()->first()
+            );
+        }
+        
+        return $attributes;
+    }
+
+    /** @throws FailedValidationException */
+    protected function validateAddressAttributes(array $attributes): void
+    {
+        $validator = $this->validateAddress($attributes);
+        
+        if ($validator->fails()) {
+            throw new FailedValidationException(
+                '[Addresses] ' . $validator->errors()->first()
+            );
+        }
     }
 
     public function validateAddress(array $attributes): Validator
     {
-        $model = config('lecturize.addresses.model', Address::class);
+        $model = config('laravel-addresses.addresses.model', Address::class);
         $rules = (new $model())->getValidationRules();
 
         return validator($attributes, $rules);
     }
 
-    public function findCountryByCode(string $country_code): ?Country
+    public function findCountryByCode(string $countryCode): ?Country
     {
-        return Country::whereCountryCode($country_code)
-            ->first();
+        return Country::where('country_code', $countryCode)->first();
+    }
+
+    /** @deprecated */
+    public function getPrimaryAddress(string $direction = 'desc'): ?Address
+    {
+        return $this->getAddress('primary', $direction, true);
+    }
+
+    /** @deprecated */
+    public function getBillingAddress(string $direction = 'desc'): ?Address
+    {
+        return $this->getAddress('billing', $direction, true);
+    }
+
+    /** @deprecated */
+    public function getShippingAddress(string $direction = 'desc'): ?Address
+    {
+        return $this->getAddress('shipping', $direction, true);
     }
 }
