@@ -117,43 +117,20 @@ trait HasAddresses
     /** @throws FailedValidationException */
     public function loadAddressAttributes(array $attributes): array
     {
-        $countryCode = $attributes['country'] ?? null;
-        
-        if (empty($countryCode)) {
+        // return if no country given
+        if (! isset($attributes['country']))
             throw new FailedValidationException('[Addresses] No country code given.');
-        }
 
-        $country = $this->findCountryByCode($countryCode);
-        
-        if (!$country?->id) {
+        // find country
+        if (! ($country = $this->findCountryByCode($attributes['country'])) || ! isset($country->id))
             throw new FailedValidationException('[Addresses] Country not found, did you seed the countries table?');
-        }
 
-        $attributes['country_id'] = $country->id;
+        // unset country from attributes array
         unset($attributes['country']);
+        $attributes['country_id'] = $country->id;
 
         $this->validateAddressAttributes($attributes);
 
-        return $attributes;
-    }
-
-    public function validateOnlyGivenAttributes(array $attributes): array
-    {
-        $model = config('laravel-addresses.addresses.model', Address::class);
-        $rules = (new $model())->getValidationRules();
-        
-        // Filter rules to only include keys present in the attributes
-        $filteredRules = array_intersect_key($rules, $attributes);
-        
-        // Validate only the provided attributes
-        $validator = validator($attributes, $filteredRules);
-        
-        if ($validator->fails()) {
-            throw new FailedValidationException(
-                '[Validation] ' . $validator->errors()->first()
-            );
-        }
-        
         return $attributes;
     }
 
@@ -175,6 +152,26 @@ trait HasAddresses
         $rules = (new $model())->getValidationRules();
 
         return validator($attributes, $rules);
+    }
+
+        public function validateOnlyGivenAttributes(array $attributes): array
+    {
+        $model = config('laravel-addresses.addresses.model', Address::class);
+        $rules = (new $model())->getValidationRules();
+        
+        // Filter rules to only include keys present in the attributes
+        $filteredRules = array_intersect_key($rules, $attributes);
+        
+        // Validate only the provided attributes
+        $validator = validator($attributes, $filteredRules);
+        
+        if ($validator->fails()) {
+            throw new FailedValidationException(
+                '[Validation] ' . $validator->errors()->first()
+            );
+        }
+        
+        return $attributes;
     }
 
     public function findCountryByCode(string $countryCode): ?Country
