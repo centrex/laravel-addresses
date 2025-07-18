@@ -94,9 +94,11 @@ trait HasContacts
             ->flag($flag, true)
             ->orderBy('is_' . $flag, $direction)
             ->first();
+
         if ($contact !== null) {
             return $contact;
         }
+
         if ($strict) {
             return null;
         }
@@ -112,6 +114,7 @@ trait HasContacts
          */
         $current_flag_index = array_search($flag, $fallback_order);
         $try_flag = $fallback_order[$current_flag_index - 1] ?? null;
+
         if ($try_flag !== null) {
             $contact = $this->getContact($try_flag, $direction);
 
@@ -119,6 +122,7 @@ trait HasContacts
                 return $contact;
             }
         }
+
         /**
          * should the default fallback logic fail, try to get the first or last contact
          */

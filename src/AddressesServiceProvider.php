@@ -51,6 +51,6 @@ class AddressesServiceProvider extends ServiceProvider
         $this->mergeConfigFrom(__DIR__ . '/../config/config.php', 'addresses');
 
         // Register the main class to use with the facade
-        $this->app->singleton('addresses', fn(): \Centrex\Addresses\Addresses => new Addresses());
+        $this->app->singleton('addresses', fn (): Addresses => new Addresses());
     }
 }
