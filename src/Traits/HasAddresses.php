@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types=1);
+declare(strict_types = 1);
 
 namespace Centrex\Addresses\Traits;
 
@@ -8,8 +8,8 @@ use Centrex\Addresses\Exceptions\FailedValidationException;
 use Centrex\Addresses\Models\{Address, Country};
 use Exception;
 use Illuminate\Contracts\Validation\Validator;
-use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\{Collection, Model};
+use Illuminate\Database\Eloquent\Relations\MorphMany;
 
 /**
  * @property-read Collection|Address[] $addresses
@@ -21,7 +21,7 @@ trait HasAddresses
         /** @var Model $this */
         return $this->morphMany(
             config('laravel-addresses.addresses.model', Address::class),
-            'addressable'
+            'addressable',
         );
     }
 
@@ -36,6 +36,7 @@ trait HasAddresses
     public function addAddress(array $attributes): Address|Model
     {
         $attributes = $this->loadAddressAttributes($attributes);
+
         return $this->addresses()->updateOrCreate($attributes);
     }
 
@@ -47,6 +48,7 @@ trait HasAddresses
         }
 
         $attributes = $this->validateOnlyGivenAttributes($attributes);
+
         return $address->update($attributes);
     }
 
@@ -104,6 +106,7 @@ trait HasAddresses
         }
 
         $tryFlag = $fallbackOrder[$flagIndex - 1] ?? null;
+
         return $tryFlag ? $this->getAddress($tryFlag, $direction) : null;
     }
 
@@ -132,7 +135,6 @@ trait HasAddresses
         $attributes['country_id'] = $country->id;
         unset($attributes['country']);
 
-
         $this->validateAddressAttributes($attributes);
 
         return $attributes;
@@ -145,7 +147,7 @@ trait HasAddresses
 
         if ($validator->fails()) {
             throw new FailedValidationException(
-                '[Addresses] ' . $validator->errors()->first()
+                '[Addresses] ' . $validator->errors()->first(),
             );
         }
     }
@@ -171,7 +173,7 @@ trait HasAddresses
 
         if ($validator->fails()) {
             throw new FailedValidationException(
-                '[Validation] ' . $validator->errors()->first()
+                '[Validation] ' . $validator->errors()->first(),
             );
         }
 

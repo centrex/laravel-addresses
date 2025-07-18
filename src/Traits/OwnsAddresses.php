@@ -5,8 +5,8 @@ declare(strict_types = 1);
 namespace Centrex\Addresses\Traits;
 
 use Centrex\Addresses\Models\{Address, Contact};
-use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\{Collection, Model};
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 /**
  * Class OwnsAddresses

@@ -9,6 +9,4 @@ use Exception;
 /**
  * Class AddressNotFoundException
  */
-class AddressNotFoundException extends Exception
-{
-}
+class AddressNotFoundException extends Exception {}

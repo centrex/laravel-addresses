@@ -17,8 +17,7 @@ class NameGenerator
         protected bool $with_titles = false,
         protected bool $with_care_of_prefix = false,
         protected bool $with_name_reversed = false,
-    ) {
-    }
+    ) {}
 
     public function forShippingLabel(): self
     {

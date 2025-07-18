@@ -7,9 +7,9 @@ namespace Centrex\Addresses\Models;
 use Centrex\Addresses\Factories\AddressFactory;
 use Centrex\Addresses\Helpers\NameGenerator;
 use Centrex\Addresses\Traits\HasCountry;
+use Illuminate\Database\Eloquent\{Builder, Collection, Model, SoftDeletes};
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\{BelongsTo, HasMany, MorphTo};
-use Illuminate\Database\Eloquent\{Builder, Collection, Model, SoftDeletes};
 
 /**
  * Class Address
@@ -114,11 +114,11 @@ class Address extends Model
     }
 
     /** {@inheritdoc} */
-    public static function boot()
+    public static function boot(): void
     {
         parent::boot();
 
-        static::creating(function ($model) {
+        static::creating(function ($model): void {
             if ($model->getConnection()
                 ->getSchemaBuilder()
                 ->hasColumn($model->getTable(), 'uuid')) {
@@ -126,7 +126,7 @@ class Address extends Model
             }
         });
 
-        static::saving(function ($address) {
+        static::saving(function ($address): void {
             if (config('lecturize.addresses.geocode', false)) {
                 $address->geocode();
             }
@@ -136,7 +136,7 @@ class Address extends Model
     private function updateFillables(): void
     {
         $fillable = $this->fillable;
-        $columns = preg_filter('/^/', 'is_', config('lecturize.addresses.columns', ['public', 'primary', 'billing', 'shipping']));
+        $columns = preg_filter('/^/', 'is_', (string) config('lecturize.addresses.columns', ['public', 'primary', 'billing', 'shipping']));
 
         $this->fillable(array_merge($fillable, $columns));
     }
@@ -185,11 +185,9 @@ class Address extends Model
         if ($geocode = file_get_contents($url)) {
             $output = json_decode($geocode);
 
-            if (count($output->results) && isset($output->results[0])) {
-                if ($geo = $output->results[0]->geometry) {
-                    $this->lat = $geo->location->lat;
-                    $this->lng = $geo->location->lng;
-                }
+            if (count($output->results) && isset($output->results[0]) && ($geo = $output->results[0]->geometry)) {
+                $this->lat = $geo->location->lat;
+                $this->lng = $geo->location->lng;
             }
         }
 
@@ -224,7 +222,7 @@ class Address extends Model
         $address[] = implode(' ', array_filter($two));
         $address[] = $this->country_name ?: '';
 
-        if (count($address = array_filter($address)) > 0) {
+        if (($address = array_filter($address)) !== []) {
             return $address;
         }
 

@@ -9,6 +9,4 @@ use Exception;
 /**
  * Class FailedValidationException
  */
-class FailedValidationException extends Exception
-{
-}
+class FailedValidationException extends Exception {}

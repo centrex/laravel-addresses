@@ -6,9 +6,9 @@ namespace Centrex\Addresses\Models;
 
 use Centrex\Addresses\Factories\ContactFactory;
 use Centrex\Addresses\Helpers\NameGenerator;
+use Illuminate\Database\Eloquent\{Builder, Model, SoftDeletes};
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\{BelongsTo, MorphTo};
-use Illuminate\Database\Eloquent\{Builder, Model, SoftDeletes};
 
 /**
  * Class Contact
@@ -99,7 +99,7 @@ class Contact extends Model
     {
         parent::boot();
 
-        static::creating(function ($model) {
+        static::creating(function ($model): void {
             if ($model->getConnection()
                 ->getSchemaBuilder()
                 ->hasColumn($model->getTable(), 'uuid')) {
@@ -111,7 +111,7 @@ class Contact extends Model
     private function updateFillables(): void
     {
         $fillable = $this->fillable;
-        $columns = preg_filter('/^/', 'is_', config('lecturize.addresses.columns', ['public', 'primary', 'billing', 'shipping']));
+        $columns = preg_filter('/^/', 'is_', (string) config('lecturize.addresses.columns', ['public', 'primary', 'billing', 'shipping']));
 
         $this->fillable(array_merge($fillable, $columns));
     }

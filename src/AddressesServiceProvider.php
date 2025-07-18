@@ -9,7 +9,7 @@ use Illuminate\Support\ServiceProvider;
 class AddressesServiceProvider extends ServiceProvider
 {
     /** Bootstrap the application services. */
-    public function boot()
+    public function boot(): void
     {
         /*
          * Optional methods to load your package assets
@@ -45,14 +45,12 @@ class AddressesServiceProvider extends ServiceProvider
     }
 
     /** Register the application services. */
-    public function register()
+    public function register(): void
     {
         // Automatically apply the package configuration
         $this->mergeConfigFrom(__DIR__ . '/../config/config.php', 'addresses');
 
         // Register the main class to use with the facade
-        $this->app->singleton('addresses', function () {
-            return new Addresses();
-        });
+        $this->app->singleton('addresses', fn(): \Centrex\Addresses\Addresses => new Addresses());
     }
 }

@@ -5,8 +5,8 @@ declare(strict_types = 1);
 namespace Centrex\Addresses\Traits;
 
 use Centrex\Addresses\Models\Country;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\{Builder, Model};
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /**
  * Class HasCountry
@@ -37,7 +37,7 @@ trait HasCountry
     {
         $country = is_int($country) ? $country : $country->id;
 
-        return $query->whereHas('country', function (Builder $q) use ($country) {
+        return $query->whereHas('country', function (Builder $q) use ($country): void {
             $q->where('id', $country);
         });
     }
