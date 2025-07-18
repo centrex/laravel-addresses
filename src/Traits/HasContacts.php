@@ -133,10 +133,6 @@ trait HasContacts
         /**
          * should the default fallback logic fail, try to get the first or last contact
          */
-        if ($direction === 'ASC') {
-            return $this->contacts()->last();
-        }
-
-        return null;
+        return $this->contacts()->last();
     }
 }
