@@ -20,14 +20,14 @@ trait HasAddresses
     {
         /** @var Model $this */
         return $this->morphMany(
-            config('laravel-addresses.addresses.model', Address::class), 
+            config('laravel-addresses.addresses.model', Address::class),
             'addressable'
         );
     }
 
     public function hasAddresses(): bool
     {
-        return $this->relationLoaded('addresses') 
+        return $this->relationLoaded('addresses')
             ? $this->addresses->isNotEmpty()
             : $this->addresses()->exists();
     }
@@ -75,7 +75,7 @@ trait HasAddresses
 
         if ($flag !== null) {
             $address = $this->getAddressByFlag($flag, $direction);
-            
+
             if ($address || $strict) {
                 return $address;
             }
@@ -98,7 +98,7 @@ trait HasAddresses
     {
         $fallbackOrder = config('laravel-addresses.addresses.flags', []);
         $flagIndex = array_search($originalFlag, $fallbackOrder);
-        
+
         if ($flagIndex === false || $flagIndex === 0) {
             return null;
         }
@@ -109,25 +109,29 @@ trait HasAddresses
 
     protected function getDefaultAddress(string $direction): ?Address
     {
-        return $direction === 'DESC' 
-            ? $this->addresses()->first() 
+        return $direction === 'DESC'
+            ? $this->addresses()->first()
             : $this->addresses()->last();
     }
 
     /** @throws FailedValidationException */
     public function loadAddressAttributes(array $attributes): array
     {
-        // return if no country given
-        if (! isset($attributes['country']))
+        $countryCode = $attributes['country'] ?? null;
+
+        if (empty($countryCode)) {
             throw new FailedValidationException('[Addresses] No country code given.');
+        }
 
-        // find country
-        if (! ($country = $this->findCountryByCode($attributes['country'])) || ! isset($country->id))
+        $country = $this->findCountryByCode($countryCode);
+
+        if (!$country?->id) {
             throw new FailedValidationException('[Addresses] Country not found, did you seed the countries table?');
+        }
 
-        // unset country from attributes array
-        unset($attributes['country']);
         $attributes['country_id'] = $country->id;
+        unset($attributes['country']);
+
 
         $this->validateAddressAttributes($attributes);
 
@@ -138,7 +142,7 @@ trait HasAddresses
     protected function validateAddressAttributes(array $attributes): void
     {
         $validator = $this->validateAddress($attributes);
-        
+
         if ($validator->fails()) {
             throw new FailedValidationException(
                 '[Addresses] ' . $validator->errors()->first()
@@ -154,29 +158,29 @@ trait HasAddresses
         return validator($attributes, $rules);
     }
 
-        public function validateOnlyGivenAttributes(array $attributes): array
+    public function validateOnlyGivenAttributes(array $attributes): array
     {
         $model = config('laravel-addresses.addresses.model', Address::class);
         $rules = (new $model())->getValidationRules();
-        
+
         // Filter rules to only include keys present in the attributes
         $filteredRules = array_intersect_key($rules, $attributes);
-        
+
         // Validate only the provided attributes
         $validator = validator($attributes, $filteredRules);
-        
+
         if ($validator->fails()) {
             throw new FailedValidationException(
                 '[Validation] ' . $validator->errors()->first()
             );
         }
-        
+
         return $attributes;
     }
 
     public function findCountryByCode(string $countryCode): ?Country
     {
-        return Country::where('country_code', $countryCode)->first();
+        return Country::whereCountryCode($countryCode)->first();
     }
 
     /** @deprecated */
