@@ -91,7 +91,7 @@ trait HasAddresses
     protected function getAddressByFlag(string $flag, string $direction): ?Address
     {
         return $this->addresses()
-            ->flag($flag, true)
+            ->flag($flag)
             ->orderBy('is_' . $flag, $direction)
             ->first();
     }
