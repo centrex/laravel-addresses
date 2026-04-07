@@ -1,166 +1,105 @@
-# Manage address in laravel
+# Manage addresses in Laravel
 
 [![Latest Version on Packagist](https://img.shields.io/packagist/v/centrex/laravel-addresses.svg?style=flat-square)](https://packagist.org/packages/centrex/laravel-addresses)
 [![GitHub Tests Action Status](https://img.shields.io/github/actions/workflow/status/centrex/laravel-addresses/run-tests.yml?branch=main&label=tests&style=flat-square)](https://github.com/centrex/laravel-addresses/actions?query=workflow%3Arun-tests+branch%3Amain)
 [![GitHub Code Style Action Status](https://img.shields.io/github/actions/workflow/status/centrex/laravel-addresses/fix-php-code-style-issues.yml?branch=main&label=code%20style&style=flat-square)](https://github.com/centrex/laravel-addresses/actions?query=workflow%3A"Fix+PHP+code+style+issues"+branch%3Amain)
 [![Total Downloads](https://img.shields.io/packagist/dt/centrex/laravel-addresses?style=flat-square)](https://packagist.org/packages/centrex/laravel-addresses)
 
-This is where your description should go. Limit it to a paragraph or two. Consider adding a small example.
-
-## Contents
-
-- [Installation](#installation)
-- [Usage Examples](#usage)
-- [Testing](#testing)
-- [Changelog](#changelog)
-- [Contributing](#contributing)
-- [Credits](#credits)
-- [License](#license)
+Polymorphic address management for any Eloquent model. Supports multiple addresses per model with flag-based retrieval (primary, billing, shipping) and country code validation against a seeded countries table.
 
 ## Installation
 
-You can install the package via composer:
-
 ```bash
 composer require centrex/laravel-addresses
-```
-
-You can run the migrations with:
-
-```bash
+php artisan vendor:publish --tag="laravel-addresses-migrations"
 php artisan migrate
-```
-
-You can publish the config file with:
-
-```bash
-php artisan vendor:publish --tag="addresses-config"
+php artisan db:seed --class="Centrex\Addresses\Database\Seeders\CountrySeeder"
 ```
 
 ## Usage
 
-First, add our `HasAddresses` trait to your model.
-        
+### 1. Add the trait to your model
+
 ```php
-<?php namespace App\Models;
+use Centrex\Addresses\Traits\HasAddresses;
 
-use Lecturize\Addresses\Traits\HasAddresses;
-use Illuminate\Database\Eloquent\Model;
-
-class Post extends Model
+class Customer extends Model
 {
     use HasAddresses;
-
-    // ...
 }
-?>
 ```
 
-##### Add an Address to a Model
+### 2. Add an address
+
+The `country` field must be a valid ISO 3166-1 alpha-2 code present in the seeded countries table.
+
 ```php
-$post = Post::find(1);
-$post->addAddress([
-    'street'     => '123 Example Drive',
-    'city'       => 'Vienna',
-    'post_code'  => '1110',
-    'country'    => 'AT', // ISO-3166-2 or ISO-3166-3 country code
-    'is_primary' => true, // optional flag
+$customer->addAddress([
+    'country'    => 'BD',
+    'city'       => 'Dhaka',
+    'state'      => 'Dhaka Division',
+    'zip'        => '1000',
+    'street'     => '123 Main Street',
+    'is_primary' => true,
+    'is_billing' => true,
 ]);
 ```
 
-Alternativly you could do...
+### 3. Retrieve addresses
 
 ```php
-$address = [
-    'street'     => '123 Example Drive',
-    'city'       => 'Vienna',
-    'post_code'  => '1110',
-    'country'    => 'AT', // ISO-3166-2 or ISO-3166-3 country code
-    'is_primary' => true, // optional flag
-];
-$post->addAddress($address);
+// All addresses
+$customer->addresses;
+
+// Check if any addresses exist
+$customer->hasAddresses();
+
+// Get by flag (primary | billing | shipping)
+$customer->getAddress('billing');    // returns flagged address or falls back
+$customer->getAddress('shipping', strict: true);  // only flagged, no fallback
+
+// Latest address (no flag filter)
+$customer->getAddress();
 ```
 
-Available attributes are `street`, `street_extra`, `city`, `post_code`, `state`, `country`, `state`, `notes` (for internal use). You can also use custom flags like `is_primary`, `is_billing` & `is_shipping`. Optionally you could also pass `lng` and `lat`, in case you deactivated the included geocoding functionality and want to add them yourself.
+### 4. Update and delete
 
-##### Check if Model has Addresses
 ```php
-if ($post->hasAddresses()) {
-    // Do something
-}
+$address = $customer->addresses->first();
+
+$customer->updateAddress($address, ['city' => 'Chittagong']);
+
+$customer->deleteAddress($address);
+
+// Remove all
+$customer->flushAddresses();
 ```
 
-##### Get all Addresses for a Model
+### Deprecated helpers (use `getAddress()` instead)
+
 ```php
-$addresses = $post->addresses()->get();
-```
-
-##### Get primary/billing/shipping Addresses
-```php
-$address = $post->getPrimaryAddress();
-$address = $post->getBillingAddress();
-$address = $post->getShippingAddress();
-```
-
-##### Update an Address for a Model
-```php
-$address = $post->addresses()->first(); // fetch the address
-
-$post->updateAddress($address, $new_attributes);
-```
-
-##### Delete an Address from a Model
-```php
-$address = $post->addresses()->first(); // fetch the address
-
-$post->deleteAddress($address); // delete by passing it as argument
-```
-
-##### Delete all Addresses from a Model
-```php
-$post->flushAddresses();
+$customer->getPrimaryAddress();
+$customer->getBillingAddress();
+$customer->getShippingAddress();
 ```
 
 ## Testing
 
-🧹 Keep a modern codebase with **Pint**:
 ```bash
-composer lint
-```
-
-✅ Run refactors using **Rector**
-```bash
-composer refacto
-```
-
-⚗️ Run static analysis using **PHPStan**:
-```bash
-composer test:types
-```
-
-✅ Run unit tests using **PEST**
-```bash
-composer test:unit
-```
-
-🚀 Run the entire test suite:
-```bash
-composer test
+composer test        # full suite
+composer test:unit   # pest only
+composer test:types  # phpstan
+composer lint        # pint
 ```
 
 ## Changelog
 
 Please see [CHANGELOG](CHANGELOG.md) for more information on what has changed recently.
 
-## Contributing
-
-Please see [CONTRIBUTING](CONTRIBUTING.md) for details.
-
 ## Credits
 
 - [centrex](https://github.com/centrex)
 - [All Contributors](../../contributors)
-- [lecturize/laravel-addresses](https://github.com/Lecturize/Laravel-Addresses)
 
 ## License
 
