@@ -185,8 +185,8 @@ class Address extends Model
         $response = rescue(
             static fn () => Http::timeout(3)->get('https://maps.googleapis.com/maps/api/geocode/json', [
                 'address' => urldecode($query),
-                'sensor' => 'false',
-                'key' => $key,
+                'sensor'  => 'false',
+                'key'     => $key,
             ]),
             report: false,
         );

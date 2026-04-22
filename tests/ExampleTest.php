@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 
 it('creates and retrieves addresses using the normalized package config', function (): void {
     Country::query()->forceCreate([
-        'name' => 'United States',
+        'name'       => 'United States',
         'iso_3166_2' => 'US',
         'iso_3166_3' => 'USA',
     ]);
@@ -16,10 +16,10 @@ it('creates and retrieves addresses using the normalized package config', functi
     $customer = TestCustomer::query()->create(['name' => 'Acme']);
 
     $address = $customer->addAddress([
-        'country' => 'US',
-        'street' => '123 Main Street',
-        'city' => 'Austin',
-        'post_code' => '73301',
+        'country'    => 'US',
+        'street'     => '123 Main Street',
+        'city'       => 'Austin',
+        'post_code'  => '73301',
         'is_primary' => true,
     ]);
 
