@@ -19,13 +19,13 @@ trait OwnsAddresses
     public function addresses(): HasMany
     {
         /** @var Model $this */
-        return $this->hasMany(config('lecturize.addresses.model', Address::class));
+        return $this->hasMany(config('laravel-addresses.addresses.model', config('addresses.addresses.model', Address::class)));
     }
 
     public function contacts(): HasMany
     {
         /** @var Model $this */
-        return $this->hasMany(config('lecturize.contacts.model', Contact::class));
+        return $this->hasMany(config('laravel-addresses.contacts.model', config('addresses.contacts.model', Contact::class)));
     }
 
     /** @return Address[]|Collection */
