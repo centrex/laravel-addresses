@@ -90,12 +90,12 @@ class Contact extends Model
     {
         parent::__construct($attributes);
 
-        $this->table = config('lecturize.contacts.table', 'contacts');
+        $this->table = config('laravel-addresses.contacts.table', config('addresses.contacts.table', 'contacts'));
         $this->updateFillables();
     }
 
     /** {@inheritdoc} */
-    protected static function boot()
+    protected static function boot(): void
     {
         parent::boot();
 
@@ -111,7 +111,8 @@ class Contact extends Model
     private function updateFillables(): void
     {
         $fillable = $this->fillable;
-        $columns = preg_filter('/^/', 'is_', (string) config('lecturize.addresses.columns', ['public', 'primary', 'billing', 'shipping']));
+        $flags = config('laravel-addresses.contacts.flags', config('addresses.contacts.flags', ['public', 'primary']));
+        $columns = array_map(static fn (string $flag): string => 'is_' . $flag, $flags);
 
         $this->fillable(array_merge($fillable, $columns));
     }
@@ -123,12 +124,12 @@ class Contact extends Model
 
     public function address(): BelongsTo
     {
-        return $this->belongsTo(config('lecturize.addresses.model', Address::class));
+        return $this->belongsTo(config('laravel-addresses.addresses.model', config('addresses.addresses.model', Address::class)));
     }
 
     public static function getValidationRules(): array
     {
-        return config('lecturize.contacts.rules', []);
+        return config('laravel-addresses.contacts.rules', config('addresses.contacts.rules', []));
     }
 
     public function getFullNameAttribute(?bool $with_salutation = null, ?bool $with_titles = null, ?bool $with_name_reversed = null): string

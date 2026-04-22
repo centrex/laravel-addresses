@@ -10,6 +10,7 @@ use Centrex\Addresses\Traits\HasCountry;
 use Illuminate\Database\Eloquent\{Builder, Collection, Model, SoftDeletes};
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\{BelongsTo, HasMany, MorphTo};
+use Illuminate\Support\Facades\Http;
 
 /**
  * Class Address
@@ -109,7 +110,7 @@ class Address extends Model
     {
         parent::__construct($attributes);
 
-        $this->table = config('lecturize.addresses.table', 'addresses');
+        $this->table = config('laravel-addresses.addresses.table', config('addresses.addresses.table', 'addresses'));
         $this->updateFillables();
     }
 
@@ -127,7 +128,7 @@ class Address extends Model
         });
 
         static::saving(function ($address): void {
-            if (config('lecturize.addresses.geocode', false)) {
+            if ($address->shouldGeocode()) {
                 $address->geocode();
             }
         });
@@ -136,7 +137,8 @@ class Address extends Model
     private function updateFillables(): void
     {
         $fillable = $this->fillable;
-        $columns = preg_filter('/^/', 'is_', (string) config('lecturize.addresses.columns', ['public', 'primary', 'billing', 'shipping']));
+        $flags = config('laravel-addresses.addresses.flags', config('addresses.addresses.flags', ['public', 'primary', 'billing', 'shipping']));
+        $columns = array_map(static fn (string $flag): string => 'is_' . $flag, $flags);
 
         $this->fillable(array_merge($fillable, $columns));
     }
@@ -148,26 +150,26 @@ class Address extends Model
 
     public function contacts(): HasMany
     {
-        return $this->hasMany(config('lecturize.contacts.model', Contact::class));
+        return $this->hasMany(config('laravel-addresses.contacts.model', config('addresses.contacts.model', Contact::class)));
     }
 
     public function user(): BelongsTo
     {
-        return $this->belongsTo(config('lecturize.addresses.users.model', config('auth.providers.users.model', 'App\Models\Users\User')));
+        return $this->belongsTo(config('auth.providers.users.model', 'App\\Models\\User'));
     }
 
     public static function getValidationRules(): array
     {
-        $rules = config('lecturize.addresses.rules', [
+        $rules = config('laravel-addresses.addresses.rules', config('addresses.addresses.rules', [
             'street'       => 'required|string|min:3|max:60',
             'street_extra' => 'nullable|string|min:3|max:60',
             'city'         => 'required|string|min:3|max:60',
             'state'        => 'nullable|string|min:3|max:60',
             'post_code'    => 'required|min:4|max:10|AlphaDash',
             'country_id'   => 'required|integer',
-        ]);
+        ]));
 
-        foreach (config('lecturize.addresses.flags', ['public', 'primary', 'billing', 'shipping']) as $flag) {
+        foreach (config('laravel-addresses.addresses.flags', config('addresses.addresses.flags', ['public', 'primary', 'billing', 'shipping'])) as $flag) {
             $rules['is_' . $flag] = 'boolean';
         }
 
@@ -180,18 +182,36 @@ class Address extends Model
             return $this;
         }
 
-        $url = "https://maps.google.com/maps/api/geocode/json?address={$query}&sensor=false&key={$key}";
+        $response = rescue(
+            static fn () => Http::timeout(3)->get('https://maps.googleapis.com/maps/api/geocode/json', [
+                'address' => urldecode($query),
+                'sensor' => 'false',
+                'key' => $key,
+            ]),
+            report: false,
+        );
 
-        if ($geocode = file_get_contents($url)) {
-            $output = json_decode($geocode);
+        if ($response?->successful()) {
+            $geometry = data_get($response->json(), 'results.0.geometry.location');
 
-            if (count($output->results) && isset($output->results[0]) && ($geo = $output->results[0]->geometry)) {
-                $this->lat = $geo->location->lat;
-                $this->lng = $geo->location->lng;
+            if ($geometry !== null) {
+                $this->lat = (string) data_get($geometry, 'lat');
+                $this->lng = (string) data_get($geometry, 'lng');
             }
         }
 
         return $this;
+    }
+
+    public function shouldGeocode(): bool
+    {
+        if (!config('laravel-addresses.addresses.geocode', config('addresses.addresses.geocode', false))) {
+            return false;
+        }
+
+        return $this->isDirty(['street', 'street_extra', 'city', 'state', 'post_code', 'country_id'])
+            || blank($this->lat)
+            || blank($this->lng);
     }
 
     public function getQueryString(): string

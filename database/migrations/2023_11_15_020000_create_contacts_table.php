@@ -18,7 +18,7 @@ return new class() extends Migration
     /** Create a new migration instance. */
     public function __construct()
     {
-        $this->table = config('laravel_addresses.contacts.table', 'contacts');
+        $this->table = config('laravel-addresses.contacts.table', config('addresses.contacts.table', 'contacts'));
     }
 
     /**
@@ -58,11 +58,11 @@ return new class() extends Migration
                 ->nullable()
                 ->unsigned()
                 ->references('id')
-                ->on(config('laravel_addresses.addresses.table', 'addresses'));
+                ->on(config('laravel-addresses.addresses.table', config('addresses.addresses.table', 'addresses')));
 
             $table->nullableMorphs('contactable');
 
-            foreach (config('laravel_addresses.contacts.flags', ['public', 'primary']) as $flag) {
+            foreach (config('laravel-addresses.contacts.flags', config('addresses.contacts.flags', ['public', 'primary'])) as $flag) {
                 $table->boolean('is_' . $flag)->default(false)->index();
             }
 

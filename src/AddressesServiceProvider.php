@@ -47,10 +47,10 @@ class AddressesServiceProvider extends ServiceProvider
     /** Register the application services. */
     public function register(): void
     {
-        // Automatically apply the package configuration
+        $this->mergeConfigFrom(__DIR__ . '/../config/config.php', 'laravel-addresses');
         $this->mergeConfigFrom(__DIR__ . '/../config/config.php', 'addresses');
 
-        // Register the main class to use with the facade
-        $this->app->singleton('addresses', fn (): Addresses => new Addresses());
+        $this->app->singleton(Addresses::class, fn (): Addresses => new Addresses());
+        $this->app->alias(Addresses::class, 'addresses');
     }
 }

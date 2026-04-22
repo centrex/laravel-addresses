@@ -21,12 +21,14 @@ trait HasContacts
     public function contacts(): MorphMany
     {
         /** @var Model $this */
-        return $this->morphMany(config('lecturize.contacts.model', Contact::class), 'contactable');
+        return $this->morphMany(config('laravel-addresses.contacts.model', config('addresses.contacts.model', Contact::class)), 'contactable');
     }
 
     public function hasContacts(): bool
     {
-        return $this->contacts->isNotEmpty();
+        return $this->relationLoaded('contacts')
+            ? $this->contacts->isNotEmpty()
+            : $this->contacts()->exists();
     }
 
     /** @throws Exception */
@@ -78,7 +80,7 @@ trait HasContacts
 
     public function validateContact(array $attributes): Validator
     {
-        $rules = config('lecturize.contacts.model', Contact::class)::getValidationRules();
+        $rules = config('laravel-addresses.contacts.model', config('addresses.contacts.model', Contact::class))::getValidationRules();
 
         return validator($attributes, $rules);
     }
@@ -91,7 +93,7 @@ trait HasContacts
 
         $direction = strtoupper($direction) === 'ASC' ? 'ASC' : 'DESC';
         $contact = $this->contacts()
-            ->flag($flag, true)
+            ->flag($flag)
             ->orderBy('is_' . $flag, $direction)
             ->first();
 
@@ -106,7 +108,7 @@ trait HasContacts
          * use the array order of config lecturize.contacts.flags to build up
          * a fallback solution for when no contact with the given flag exists
          */
-        $fallback_order = config('lecturize.contacts.flags', []);
+        $fallback_order = config('laravel-addresses.contacts.flags', config('addresses.contacts.flags', []));
         /**
          * fallback order is an array of flags like: ['public', 'primary', 'billing', 'shipping']
          * when calling getContact('billing') and no contact with the billing flag exists, the next earliest flag is used

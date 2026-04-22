@@ -18,7 +18,7 @@ return new class() extends Migration
     /** Create a new migration instance. */
     public function __construct()
     {
-        $this->table = config('laravel_addresses.addresses.table', 'addresses');
+        $this->table = config('laravel-addresses.addresses.table', config('addresses.addresses.table', 'addresses'));
     }
 
     /**
@@ -45,9 +45,9 @@ return new class() extends Migration
             $table->text('properties')->nullable();
 
             $table->nullableMorphs('addressable');
-            $table->foreignId('user_id')->index()->constrained()->onDelete('cascade');
+            $table->foreignId('user_id')->nullable()->index()->constrained()->nullOnDelete();
 
-            foreach (config('laravel_addresses.addresses.flags', ['public', 'primary', 'billing', 'shipping']) as $flag) {
+            foreach (config('laravel-addresses.addresses.flags', config('addresses.addresses.flags', ['public', 'primary', 'billing', 'shipping'])) as $flag) {
                 $table->boolean('is_' . $flag)->default(false)->index();
             }
 
