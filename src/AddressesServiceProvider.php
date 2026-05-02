@@ -17,6 +17,7 @@ class AddressesServiceProvider extends ServiceProvider
         // $this->loadTranslationsFrom(__DIR__.'/../resources/lang', 'addresses');
         // $this->loadViewsFrom(__DIR__.'/../resources/views', 'addresses');
         $this->loadMigrationsFrom(__DIR__ . '/../database/migrations');
+
         // $this->loadRoutesFrom(__DIR__.'/routes.php');
 
         if ($this->app->runningInConsole()) {

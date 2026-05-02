@@ -9,6 +9,7 @@ use Centrex\Addresses\Helpers\NameGenerator;
 use Illuminate\Database\Eloquent\{Builder, Model, SoftDeletes};
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\{BelongsTo, MorphTo};
+use Illuminate\Support\Str;
 
 /**
  * Class Contact
@@ -48,9 +49,11 @@ class Contact extends Model
 
     /** {@inheritdoc} */
     protected $fillable = [
+        'type',
         'gender',
         'title_before',
         'title_after',
+        'external_id',
 
         'first_name',
         'middle_name',
@@ -59,15 +62,21 @@ class Contact extends Model
         'company',
         'extra',
         'position',
+        'department',
 
         'phone',
         'mobile',
         'fax',
         'email',
         'email_invoice',
+        'contact_email',
+        'billing_email',
         'website',
 
         'vat_id',
+        'instructions',
+        'preferred_locale',
+        'timezone',
 
         'notes',
         'properties',
@@ -103,7 +112,7 @@ class Contact extends Model
             if ($model->getConnection()
                 ->getSchemaBuilder()
                 ->hasColumn($model->getTable(), 'uuid')) {
-                $model->uuid = \Webpatser\Uuid\Uuid::generate()->string;
+                $model->uuid = (string) Str::uuid();
             }
         });
     }
@@ -166,6 +175,43 @@ class Contact extends Model
     public function scopeFlag(Builder $query, string $flag): Builder
     {
         return $query->where('is_' . $flag, true);
+    }
+
+    public function scopeType(Builder $query, string $type): Builder
+    {
+        return $query->where('type', $type);
+    }
+
+    public function scopeForOwner(Builder $query, Model $owner): Builder
+    {
+        return $query
+            ->where('contactable_type', $owner->getMorphClass())
+            ->where('contactable_id', $owner->getKey());
+    }
+
+    public function scopeSearch(Builder $query, string $term): Builder
+    {
+        $term = trim($term);
+
+        if ($term === '') {
+            return $query;
+        }
+
+        return $query->where(function (Builder $query) use ($term): void {
+            $like = '%' . str_replace(['\\', '%', '_'], ['\\\\', '\\%', '\\_'], $term) . '%';
+
+            $query->where('first_name', 'like', $like)
+                ->orWhere('middle_name', 'like', $like)
+                ->orWhere('last_name', 'like', $like)
+                ->orWhere('company', 'like', $like)
+                ->orWhere('position', 'like', $like)
+                ->orWhere('department', 'like', $like)
+                ->orWhere('email', 'like', $like)
+                ->orWhere('contact_email', 'like', $like)
+                ->orWhere('mobile', 'like', $like)
+                ->orWhere('phone', 'like', $like)
+                ->orWhere('external_id', 'like', $like);
+        });
     }
 
     protected static function newFactory(): ContactFactory

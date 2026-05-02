@@ -37,7 +37,20 @@ trait HasAddresses
     {
         $attributes = $this->loadAddressAttributes($attributes);
 
-        return $this->addresses()->updateOrCreate($attributes);
+        return $this->addresses()->create($attributes);
+    }
+
+    /** @throws Exception */
+    public function upsertAddress(array $attributes, array $uniqueBy = ['type']): Address|Model
+    {
+        $attributes = $this->loadAddressAttributes($attributes);
+        $identity = array_intersect_key($attributes, array_flip($uniqueBy));
+
+        if ($identity === []) {
+            $identity = ['type' => $attributes['type'] ?? 'default'];
+        }
+
+        return $this->addresses()->updateOrCreate($identity, $attributes);
     }
 
     /** @throws Exception */
@@ -92,7 +105,7 @@ trait HasAddresses
     {
         return $this->addresses()
             ->flag($flag)
-            ->orderBy('is_' . $flag, $direction)
+            ->latest('updated_at')
             ->first();
     }
 
@@ -120,19 +133,23 @@ trait HasAddresses
     /** @throws FailedValidationException */
     public function loadAddressAttributes(array $attributes): array
     {
-        $countryCode = $attributes['country'] ?? null;
+        $countryCode = $attributes['country'] ?? $attributes['country_code'] ?? null;
 
-        if (empty($countryCode)) {
+        if (empty($countryCode) && empty($attributes['country_id'])) {
             throw new FailedValidationException('[Addresses] No country code given.');
         }
 
-        $country = $this->findCountryByCode($countryCode);
+        $country = $countryCode ? $this->findCountryByCode((string) $countryCode) : null;
 
-        if (!$country?->id) {
+        if ($countryCode && !$country?->id) {
             throw new FailedValidationException('[Addresses] Country not found, did you seed the countries table?');
         }
 
-        $attributes['country_id'] = $country->id;
+        if ($country?->id) {
+            $attributes['country_id'] = $country->id;
+            $attributes['country_code'] = strtoupper((string) $countryCode);
+        }
+
         unset($attributes['country']);
 
         $this->validateAddressAttributes($attributes);

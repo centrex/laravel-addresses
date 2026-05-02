@@ -1,6 +1,8 @@
 <?php
 
 return [
+    'load_migrations' => env('ADDRESSES_LOAD_MIGRATIONS', true),
+
     /*
      * Addresses
      */
@@ -24,12 +26,16 @@ return [
          * The validation rules for an address.
          */
         'rules' => [
-            'street'       => 'required|string|min:3|max:60',
-            'street_extra' => 'nullable|string|max:60',
-            'city'         => 'required|string|min:3|max:60',
-            'state'        => 'nullable|string|min:3|max:60',
-            'post_code'    => 'required|min:4|max:10|AlphaDash',
+            'type'         => 'nullable|string|max:40',
+            'street'       => 'required|string|min:3|max:180',
+            'street_extra' => 'nullable|string|max:180',
+            'city'         => 'required|string|min:2|max:120',
+            'state'        => 'nullable|string|max:120',
+            'district'     => 'nullable|string|max:120',
+            'region'       => 'nullable|string|max:120',
+            'post_code'    => 'required|string|max:30',
             'country_id'   => 'required|integer',
+            'country_code' => 'nullable|string|size:2',
         ],
 
         /*

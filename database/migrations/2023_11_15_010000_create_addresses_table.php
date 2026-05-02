@@ -26,23 +26,49 @@ return new class() extends Migration
      *
      * @return void
      */
-    public function up()
+    public function up(): void
     {
         Schema::create($this->table, function (Blueprint $table) {
-            $table->increments('id');
-            $table->uuid('uuid')->nullable();
+            $table->id();
+            $table->uuid('uuid')->unique();
+            $table->string('external_id', 150)->nullable();
 
-            $table->string('street', 60)->nullable();
-            $table->string('street_extra', 60)->nullable();
-            $table->string('city', 60)->nullable();
-            $table->string('state', 60)->nullable();
-            $table->string('post_code', 10)->nullable();
-            $table->integer('country_id')->nullable()->unsigned()->index();
-            $table->string('notes')->nullable();
+            $table->string('type', 40)->default('default')->index();
+            $table->string('label', 120)->nullable();
 
-            $table->float('lat', 10, 6)->nullable();
-            $table->float('lng', 10, 6)->nullable();
-            $table->text('properties')->nullable();
+            $table->string('gender', 20)->nullable();
+            $table->string('title_before', 40)->nullable();
+            $table->string('title_after', 40)->nullable();
+            $table->string('first_name', 100)->nullable();
+            $table->string('middle_name', 100)->nullable();
+            $table->string('last_name', 100)->nullable();
+            $table->string('company', 180)->nullable();
+            $table->string('extra', 180)->nullable();
+
+            $table->string('street', 180)->nullable();
+            $table->string('street_extra', 180)->nullable();
+            $table->string('city', 120)->nullable();
+            $table->string('state', 120)->nullable();
+            $table->string('district', 120)->nullable();
+            $table->string('region', 120)->nullable();
+            $table->string('post_code', 30)->nullable();
+            $table->unsignedInteger('country_id')->nullable()->index();
+            $table->char('country_code', 2)->nullable()->index();
+
+            $table->string('vat_id', 80)->nullable();
+            $table->string('eori_id', 80)->nullable();
+            $table->string('contact_phone', 60)->nullable();
+            $table->string('contact_email', 191)->nullable();
+            $table->string('billing_email', 191)->nullable();
+            $table->text('instructions')->nullable();
+            $table->text('notes')->nullable();
+
+            $table->decimal('lat', 10, 7)->nullable();
+            $table->decimal('lng', 10, 7)->nullable();
+            $table->timestamp('geocoded_at')->nullable();
+            $table->string('geocode_provider', 40)->nullable();
+            $table->string('validation_status', 40)->default('unverified')->index();
+            $table->json('properties')->nullable();
 
             $table->nullableMorphs('addressable');
             $table->foreignId('user_id')->nullable()->index()->constrained()->nullOnDelete();
@@ -53,6 +79,12 @@ return new class() extends Migration
 
             $table->timestamps();
             $table->softDeletes();
+
+            $table->index(['addressable_type', 'addressable_id', 'type'], 'addresses_owner_type_idx');
+            $table->index(['addressable_type', 'addressable_id', 'deleted_at'], 'addresses_owner_active_idx');
+            $table->index(['country_id', 'state', 'city'], 'addresses_location_idx');
+            $table->index(['post_code', 'country_id'], 'addresses_post_country_idx');
+            $table->unique(['addressable_type', 'addressable_id', 'external_id'], 'addresses_owner_external_unique');
         });
     }
 
@@ -61,7 +93,7 @@ return new class() extends Migration
      *
      * @return void
      */
-    public function down()
+    public function down(): void
     {
         Schema::dropIfExists($this->table);
     }

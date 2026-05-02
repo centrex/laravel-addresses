@@ -36,7 +36,20 @@ trait HasContacts
     {
         $attributes = $this->loadContactAttributes($attributes);
 
-        return $this->contacts()->updateOrCreate($attributes);
+        return $this->contacts()->create($attributes);
+    }
+
+    /** @throws Exception */
+    public function upsertContact(array $attributes, array $uniqueBy = ['type']): Contact|Model
+    {
+        $attributes = $this->loadContactAttributes($attributes);
+        $identity = array_intersect_key($attributes, array_flip($uniqueBy));
+
+        if ($identity === []) {
+            $identity = ['type' => $attributes['type'] ?? 'default'];
+        }
+
+        return $this->contacts()->updateOrCreate($identity, $attributes);
     }
 
     /** @throws Exception */

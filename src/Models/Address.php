@@ -11,6 +11,7 @@ use Illuminate\Database\Eloquent\{Builder, Collection, Model, SoftDeletes};
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\{BelongsTo, HasMany, MorphTo};
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Str;
 
 /**
  * Class Address
@@ -63,6 +64,8 @@ class Address extends Model
         'gender',
         'title_before',
         'title_after',
+        'type',
+        'label',
 
         'first_name',
         'middle_name',
@@ -75,8 +78,11 @@ class Address extends Model
         'street_extra',
         'city',
         'state',
+        'district',
+        'region',
         'post_code',
         'country_id',
+        'country_code',
 
         'vat_id',
         'eori_id',
@@ -91,6 +97,9 @@ class Address extends Model
 
         'lat',
         'lng',
+        'geocoded_at',
+        'geocode_provider',
+        'validation_status',
 
         'addressable_type',
         'addressable_id',
@@ -102,6 +111,9 @@ class Address extends Model
     protected $casts = [
         'properties' => 'array',
 
+        'lat'         => 'decimal:7',
+        'lng'         => 'decimal:7',
+        'geocoded_at' => 'datetime',
         'deleted_at' => 'datetime',
     ];
 
@@ -123,7 +135,7 @@ class Address extends Model
             if ($model->getConnection()
                 ->getSchemaBuilder()
                 ->hasColumn($model->getTable(), 'uuid')) {
-                $model->uuid = \Webpatser\Uuid\Uuid::generate()->string;
+                $model->uuid = (string) Str::uuid();
             }
         });
 
@@ -197,6 +209,8 @@ class Address extends Model
             if ($geometry !== null) {
                 $this->lat = (string) data_get($geometry, 'lat');
                 $this->lng = (string) data_get($geometry, 'lng');
+                $this->geocoded_at = now();
+                $this->geocode_provider = 'google';
             }
         }
 
@@ -291,7 +305,7 @@ class Address extends Model
 
     public function getRouteAttribute(): string
     {
-        if (preg_match('/(\D+)\s?(.+)/i', $this->street, $result)) {
+        if (preg_match('/(\D+)\s?(.+)/i', (string) $this->street, $result)) {
             return trim($result[1]);
         }
 
@@ -300,7 +314,7 @@ class Address extends Model
 
     public function getStreetNumberAttribute(): string
     {
-        if (preg_match('/(\D+)\s?(.+)/i', $this->street, $result)) {
+        if (preg_match('/(\D+)\s?(.+)/i', (string) $this->street, $result)) {
             return trim($result[2]);
         }
 
@@ -328,6 +342,41 @@ class Address extends Model
     public function scopeFlag(Builder $query, string $flag): Builder
     {
         return $query->where('is_' . $flag, true);
+    }
+
+    public function scopeType(Builder $query, string $type): Builder
+    {
+        return $query->where('type', $type);
+    }
+
+    public function scopeForOwner(Builder $query, Model $owner): Builder
+    {
+        return $query
+            ->where('addressable_type', $owner->getMorphClass())
+            ->where('addressable_id', $owner->getKey());
+    }
+
+    public function scopeSearch(Builder $query, string $term): Builder
+    {
+        $term = trim($term);
+
+        if ($term === '') {
+            return $query;
+        }
+
+        return $query->where(function (Builder $query) use ($term): void {
+            $like = '%' . str_replace(['\\', '%', '_'], ['\\\\', '\\%', '\\_'], $term) . '%';
+
+            $query->where('street', 'like', $like)
+                ->orWhere('street_extra', 'like', $like)
+                ->orWhere('city', 'like', $like)
+                ->orWhere('state', 'like', $like)
+                ->orWhere('district', 'like', $like)
+                ->orWhere('region', 'like', $like)
+                ->orWhere('post_code', 'like', $like)
+                ->orWhere('company', 'like', $like)
+                ->orWhere('external_id', 'like', $like);
+        });
     }
 
     /** @deprecated use scopeFlag('primary') instead */
