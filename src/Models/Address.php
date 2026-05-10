@@ -254,7 +254,7 @@ class Address extends Model
         $address[] = $this->street ?: '';
         $address[] = $this->street_extra ?: '';
         $address[] = implode(' ', array_filter($two));
-        $address[] = $this->country_name ?: '';
+        $address[] = $this->country_name ?: $this->country_code;
 
         if (($address = array_filter($address)) !== []) {
             return $address;
@@ -281,6 +281,11 @@ class Address extends Model
         return '';
     }
 
+    public function formattedAddress(string $glue = ', '): string
+    {
+        return $this->getLine($glue);
+    }
+
     public function getCountryNameAttribute(): string
     {
         if ($this->country) {
@@ -290,8 +295,23 @@ class Address extends Model
         return '';
     }
 
-    public function getCountryCodeAttribute(?int $digits = 2): string
+    public function getCountryCodeAttribute(mixed $value = null): string
     {
+        if (is_int($value)) {
+            return $this->countryCode($value);
+        }
+
+        return $this->countryCode(2, is_string($value) ? $value : null);
+    }
+
+    public function countryCode(int $digits = 2, ?string $rawValue = null): string
+    {
+        $raw = strtoupper((string) ($rawValue ?? $this->attributes['country_code'] ?? ''));
+
+        if ($raw !== '') {
+            return $digits === 3 ? $raw : substr($raw, 0, 2);
+        }
+
         if (!$this->country) {
             return '';
         }

@@ -16,7 +16,9 @@ class AddressesServiceProvider extends ServiceProvider
          */
         // $this->loadTranslationsFrom(__DIR__.'/../resources/lang', 'addresses');
         // $this->loadViewsFrom(__DIR__.'/../resources/views', 'addresses');
-        $this->loadMigrationsFrom(__DIR__ . '/../database/migrations');
+        if (config('laravel-addresses.load_migrations', config('addresses.load_migrations', true))) {
+            $this->loadMigrationsFrom(__DIR__ . '/../database/migrations');
+        }
 
         // $this->loadRoutesFrom(__DIR__.'/routes.php');
 

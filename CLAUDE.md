@@ -54,7 +54,7 @@ workbench/
 
 ## Key Concepts
 
-- Models: Address model with standard fields (line1, line2, city, state, country, postal_code)
+- Models: Address model with standard fields (street, street_extra, city, state, country_code, post_code)
 - Traits: Add to any Eloquent model to give it addressable behavior
 - Contracts: Interface for addressable models
 - Helpers: Utility functions for address formatting/validation

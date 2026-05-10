@@ -35,13 +35,13 @@ The `country` field must be a valid ISO 3166-1 alpha-2 code present in the seede
 
 ```php
 $customer->addAddress([
-    'country'    => 'BD',
-    'city'       => 'Dhaka',
-    'state'      => 'Dhaka Division',
-    'zip'        => '1000',
-    'street'     => '123 Main Street',
-    'is_primary' => true,
-    'is_billing' => true,
+    'country_code' => 'BD',
+    'city'         => 'Dhaka',
+    'state'        => 'Dhaka Division',
+    'post_code'    => '1000',
+    'street'       => '123 Main Street',
+    'is_primary'   => true,
+    'is_billing'   => true,
 ]);
 ```
 

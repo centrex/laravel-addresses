@@ -10,6 +10,7 @@ use Exception;
 use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Database\Eloquent\{Collection, Model};
 use Illuminate\Database\Eloquent\Relations\MorphMany;
+use Throwable;
 
 /**
  * @property-read Collection|Address[] $addresses
@@ -136,13 +137,15 @@ trait HasAddresses
         $countryCode = $attributes['country'] ?? $attributes['country_code'] ?? null;
 
         if (empty($countryCode) && empty($attributes['country_id'])) {
-            throw new FailedValidationException('[Addresses] No country code given.');
+            $this->validateAddressAttributes($attributes);
+
+            return $attributes;
         }
 
         $country = $countryCode ? $this->findCountryByCode((string) $countryCode) : null;
 
         if ($countryCode && !$country?->id) {
-            throw new FailedValidationException('[Addresses] Country not found, did you seed the countries table?');
+            $attributes['country_code'] = strtoupper(substr((string) $countryCode, 0, 2));
         }
 
         if ($country?->id) {
@@ -199,7 +202,11 @@ trait HasAddresses
 
     public function findCountryByCode(string $countryCode): ?Country
     {
-        return Country::whereCountryCode($countryCode)->first();
+        try {
+            return Country::whereCountryCode($countryCode)->first();
+        } catch (Throwable) {
+            return null;
+        }
     }
 
     /** @deprecated */
