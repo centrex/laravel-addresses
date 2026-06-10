@@ -4,7 +4,7 @@ declare(strict_types = 1);
 
 namespace Centrex\Addresses\Models;
 
-use Centrex\Addresses\Factories\AddressFactory;
+use Centrex\Addresses\Database\Factories\AddressFactory;
 use Centrex\Addresses\Helpers\NameGenerator;
 use Centrex\Addresses\Traits\HasCountry;
 use Illuminate\Database\Eloquent\{Builder, Collection, Model, SoftDeletes};
@@ -295,6 +295,15 @@ class Address extends Model
         return '';
     }
 
+    /**
+     * Eloquent attribute accessor for country_code.
+     *
+     * The $value parameter is intentionally mixed because Eloquent passes different types
+     * depending on how the accessor is called:
+     *   - int   → treat as the number of ISO digits requested (2 or 3), e.g. $address->getCountryCodeAttribute(3)
+     *   - string → treat as a raw country-code override
+     *   - null  → fall back to the stored country_code column value or the country relation
+     */
     public function getCountryCodeAttribute(mixed $value = null): string
     {
         if (is_int($value)) {
@@ -325,6 +334,9 @@ class Address extends Model
 
     public function getRouteAttribute(): string
     {
+        // Pattern: split "Main St 123" into route ("Main St") + street number ("123").
+        // Group 1 captures the leading non-digit characters (the route name);
+        // group 2 captures the remainder (the house/building number).
         if (preg_match('/(\D+)\s?(.+)/i', (string) $this->street, $result)) {
             return trim($result[1]);
         }
@@ -334,6 +346,7 @@ class Address extends Model
 
     public function getStreetNumberAttribute(): string
     {
+        // See getRouteAttribute() for the regex explanation.
         if (preg_match('/(\D+)\s?(.+)/i', (string) $this->street, $result)) {
             return trim($result[2]);
         }

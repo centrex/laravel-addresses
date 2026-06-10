@@ -4,8 +4,33 @@ declare(strict_types = 1);
 
 namespace Centrex\Addresses\Helpers;
 
+/**
+ * Fluent builder for formatting a person's name in various display styles.
+ *
+ * Usage:
+ *   (new NameGenerator('male', 'John', null, 'Doe', 'Dr', 'Jr'))
+ *       ->withSalutation()
+ *       ->withTitles()
+ *       ->toString();
+ *   // → "Mr. Dr John Doe, Jr"
+ *
+ * Shortcut for shipping labels:
+ *   (new NameGenerator(...))->forShippingLabel()->toString();
+ */
 class NameGenerator
 {
+    /**
+     * @param  string|null  $gender         Gender key used to look up salutation translations ('male', 'female', …)
+     * @param  string|null  $first_name
+     * @param  string|null  $middle_name
+     * @param  string|null  $last_name
+     * @param  string|null  $title_before   Honorific prefix, e.g. "Dr", "Prof"
+     * @param  string|null  $title_after    Post-nominal suffix, e.g. "Jr", "Sr", "PhD"
+     * @param  bool         $with_salutation       Prepend gendered salutation (e.g. "Mr.", "Ms.")
+     * @param  bool         $with_titles           Wrap name with title_before / title_after
+     * @param  bool         $with_care_of_prefix   Prepend the "c/o" translation from the addresses lang file
+     * @param  bool         $with_name_reversed    Format as "Last, First" instead of "First Last"
+     */
     public function __construct(
         protected ?string $gender,
         protected ?string $first_name,
